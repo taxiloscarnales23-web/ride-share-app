@@ -28,11 +28,11 @@ const schemeFromBundleId = `manus${timestamp}`;
 
 const env = {
   // App branding - update these values directly (do not use env vars)
-  appName: "RideShare App",
+  appName: "RideShare",
   appSlug: "ride-share-app",
   // S3 URL of the app logo - set this to the URL returned by generate_image when creating custom logo
   // Leave empty to use the default icon from assets/images/icon.png
-  logoUrl: "",
+  logoUrl: "https://private-us-east-1.manuscdn.com/sessionFile/Z3RbgquPTjE9KHt5KY2gXp/sandbox/NxZWmL2VPXZciEoThdN9DB-img-1_1771351057000_na1fn_aWNvbg.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvWjNSYmdxdVBUakU5S0h0NUtZMmdYcC9zYW5kYm94L054WldtTDJWUFhaY2lFb1RoZE45REItaW1nLTFfMTc3MTM1MTA1NzAwMF9uYTFmbl9hV052YmcucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=bDpEKA6yl~aSvXBlK9GwFIwna0O3We5P5oKo2nSjL91COdWLYoHyIoNhoLTxyBOXWtie61JfTIriDWvjQtFTGeCkjud3EQJL9WLsV07wKZY-5a-JJe6qvXkXL5gqJfacaNCVT~ESnQKuHM80263DbI4kE5Iv343evWy-1pUsa76w4ij9oPgsrx6KQLQ~ooeX4iU4Xb265ycxDFuDT0crEwVrG~dXbczrf-n4QHszcQwxCEluVtryz0ZmhZ6KpCfIEr22ats4MpQDPZ~JwBmQwu3S4eW7Wb~8nvJavA4M4nJTvb8BHmKCCjtGBfqrz01cq~qRYaPyTIOPxkDyyo0L2A__",
   scheme: schemeFromBundleId,
   iosBundleId: bundleId,
   androidPackage: bundleId,

@@ -86,6 +86,16 @@ export default function RootLayout() {
           {/* If a screen needs the native header, explicitly enable it and set a human title via Stack.Screen options. */}
           {/* in order for ios apps tab switching to work properly, use presentation: "fullScreenModal" for login page, whenever you decide to use presentation: "modal*/}
           <Stack screenOptions={{ headerShown: false }}>
+            {/* Role Selection */}
+            <Stack.Screen name="role-select" />
+
+            {/* Rider Screens */}
+            <Stack.Screen name="(rider)" />
+
+            {/* Driver Screens */}
+            <Stack.Screen name="(driver)" />
+
+            {/* Legacy Tabs */}
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="oauth/callback" />
           </Stack>
