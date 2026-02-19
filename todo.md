@@ -108,3 +108,14 @@
 - [x] Implement automatic rider/driver profile creation on first login
 
 - [x] Fix driver online status toggle error
+
+
+## Remaining Features to Implement
+- [x] Implement GPS location tracking for drivers
+- [ ] Add real-time ride matching algorithm
+- [ ] Implement WebSocket for real-time updates
+- [ ] Add push notifications for ride requests
+- [ ] Integrate maps display (Google Maps or Mapbox)
+- [ ] Create cash payment confirmation screen
+- [ ] Implement ride rating and feedback system
+- [ ] Add driver earnings calculation
