@@ -1,5 +1,6 @@
 import { ScrollView, Text, View, Pressable, ActivityIndicator, TextInput, Alert } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
+import { RideMap } from "@/components/ride-map";
 import { useColors } from "@/hooks/use-colors";
 import { useAuth } from "@/hooks/use-auth";
 import { trpc } from "@/lib/trpc";
@@ -18,6 +19,20 @@ export default function RiderHomeScreen() {
   const riderProfile = trpc.riders.getProfile.useQuery();
   const createRideMutation = trpc.rides.create.useMutation();
   const activeRidesQuery = trpc.rides.getActive.useQuery();
+
+  const mockPickupLocation = {
+    latitude: 40.7128,
+    longitude: -74.006,
+    address: pickupAddress || "123 Main Street, New York, NY",
+    type: "pickup" as const,
+  };
+
+  const mockDropoffLocation = {
+    latitude: 40.758,
+    longitude: -73.9855,
+    address: dropoffAddress || "456 Times Square, New York, NY",
+    type: "dropoff" as const,
+  };
 
   const handleRequestRide = async () => {
     if (!pickupAddress || !dropoffAddress) {
@@ -67,6 +82,14 @@ export default function RiderHomeScreen() {
           <View className="gap-2">
             <Text className="text-3xl font-bold text-foreground">Request a Ride</Text>
             <Text className="text-sm text-muted">Welcome, {user?.name || "Rider"}</Text>
+          </View>
+
+          {/* Map Preview */}
+          <View className="h-64 rounded-2xl overflow-hidden border border-border bg-surface">
+            <RideMap
+              pickupLocation={mockPickupLocation}
+              dropoffLocation={mockDropoffLocation}
+            />
           </View>
 
           {/* Pickup Location */}
