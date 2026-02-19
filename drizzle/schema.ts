@@ -117,6 +117,67 @@ export const payments = mysqlTable("payments", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+// Chat messages table - in-app messaging between drivers and riders
+export const chatMessages = mysqlTable("chatMessages", {
+  id: int("id").autoincrement().primaryKey(),
+  rideId: int("rideId").notNull(),
+  senderId: int("senderId").notNull(),
+  senderType: mysqlEnum("senderType", ["rider", "driver"]).notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("isRead").default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+// Promo codes table - discount codes for riders
+export const promoCodes = mysqlTable("promoCodes", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 50 }).notNull().unique(),
+  discountType: mysqlEnum("discountType", ["percentage", "fixed"]).notNull(),
+  discountValue: varchar("discountValue", { length: 50 }).notNull(),
+  maxUses: int("maxUses"),
+  currentUses: int("currentUses").default(0),
+  minRideAmount: varchar("minRideAmount", { length: 50 }).default("0"),
+  expiryDate: timestamp("expiryDate"),
+  isActive: boolean("isActive").default(true),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+// Promo code usage table - track which riders used which codes
+export const promoCodeUsage = mysqlTable("promoCodeUsage", {
+  id: int("id").autoincrement().primaryKey(),
+  promoCodeId: int("promoCodeId").notNull(),
+  riderId: int("riderId").notNull(),
+  rideId: int("rideId").notNull(),
+  discountAmount: varchar("discountAmount", { length: 50 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+// Emergency contacts table - trusted contacts for riders
+export const emergencyContacts = mysqlTable("emergencyContacts", {
+  id: int("id").autoincrement().primaryKey(),
+  riderId: int("riderId").notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  phone: varchar("phone", { length: 20 }).notNull(),
+  relationship: varchar("relationship", { length: 50 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+// Incident reports table - safety incidents during rides
+export const incidentReports = mysqlTable("incidentReports", {
+  id: int("id").autoincrement().primaryKey(),
+  rideId: int("rideId").notNull(),
+  reportedById: int("reportedById").notNull(),
+  reporterType: mysqlEnum("reporterType", ["rider", "driver"]).notNull(),
+  incidentType: varchar("incidentType", { length: 100 }).notNull(),
+  description: text("description"),
+  severity: mysqlEnum("severity", ["low", "medium", "high", "critical"]).notNull(),
+  status: mysqlEnum("status", ["reported", "investigating", "resolved", "closed"]).default("reported"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 // Export types
 export type Rider = typeof riders.$inferSelect;
 export type InsertRider = typeof riders.$inferInsert;
@@ -128,3 +189,13 @@ export type Ride = typeof rides.$inferSelect;
 export type InsertRide = typeof rides.$inferInsert;
 export type Payment = typeof payments.$inferSelect;
 export type InsertPayment = typeof payments.$inferInsert;
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = typeof chatMessages.$inferInsert;
+export type PromoCode = typeof promoCodes.$inferSelect;
+export type InsertPromoCode = typeof promoCodes.$inferInsert;
+export type PromoCodeUsage = typeof promoCodeUsage.$inferSelect;
+export type InsertPromoCodeUsage = typeof promoCodeUsage.$inferInsert;
+export type EmergencyContact = typeof emergencyContacts.$inferSelect;
+export type InsertEmergencyContact = typeof emergencyContacts.$inferInsert;
+export type IncidentReport = typeof incidentReports.$inferSelect;
+export type InsertIncidentReport = typeof incidentReports.$inferInsert;

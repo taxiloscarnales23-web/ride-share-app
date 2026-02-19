@@ -131,3 +131,12 @@
 ## Bug Fixes
 - [x] Remove react-native-maps dependency and create custom location display component
 - [x] Fix Expo Go compatibility issues
+
+
+## Advanced Features - Phase 2
+- [x] Implement in-app chat system between drivers and riders
+- [x] Add promo code and discount functionality
+- [x] Implement emergency features (emergency contacts, incident reporting)
+- [ ] Add ride scheduling for future bookings
+- [ ] Implement referral program for driver/rider recruitment
+- [ ] Add accessibility features (voice commands, text-to-speech)
