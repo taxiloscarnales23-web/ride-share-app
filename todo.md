@@ -126,3 +126,8 @@
 - [x] Driver earnings dashboard with analytics
 - [x] Weekly earnings breakdown
 - [x] Performance metrics (rating, acceptance rate, cancellation rate)
+
+
+## Bug Fixes
+- [x] Remove react-native-maps dependency and create custom location display component
+- [x] Fix Expo Go compatibility issues

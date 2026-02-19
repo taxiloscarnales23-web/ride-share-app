@@ -1,17 +1,5 @@
-import { View, Text, Pressable, Platform } from "react-native";
+import { View, Text } from "react-native";
 import { useColors } from "@/hooks/use-colors";
-import { useEffect, useRef, useState } from "react";
-
-let MapView: any = null;
-let Marker: any = null;
-let Polyline: any = null;
-
-if (Platform.OS !== "web") {
-  const maps = require("react-native-maps");
-  MapView = maps.default;
-  Marker = maps.Marker;
-  Polyline = maps.Polyline;
-}
 
 export interface RideLocation {
   latitude: number;
@@ -27,6 +15,10 @@ export interface RideMapProps {
   onMapReady?: () => void;
 }
 
+/**
+ * Location display component - shows pickup/dropoff locations
+ * This is a simplified version that works in Expo Go without native module dependencies
+ */
 export function RideMap({
   pickupLocation,
   dropoffLocation,
@@ -34,157 +26,103 @@ export function RideMap({
   onMapReady,
 }: RideMapProps) {
   const colors = useColors();
-  const mapRef = useRef<any>(null);
-  const canRenderMap = Platform.OS !== "web" && MapView !== null;
-  const [showRoute, setShowRoute] = useState(true);
 
-  useEffect(() => {
-    if (mapRef.current && Platform.OS !== "web") {
-      // Fit map to show all markers
-      const coordinates = [pickupLocation, dropoffLocation];
-      if (driverLocation) {
-        coordinates.push(driverLocation);
-      }
+  // Calculate approximate distance (simplified)
+  const calculateDistance = () => {
+    const lat1 = pickupLocation.latitude;
+    const lon1 = pickupLocation.longitude;
+    const lat2 = dropoffLocation.latitude;
+    const lon2 = dropoffLocation.longitude;
 
-      mapRef.current.fitToCoordinates(
-        coordinates.map((loc) => ({
-          latitude: loc.latitude,
-          longitude: loc.longitude,
-        })),
-        {
-          edgePadding: { top: 100, right: 50, bottom: 100, left: 50 },
-          animated: true,
-        }
-      );
-    }
-  }, [pickupLocation, dropoffLocation, driverLocation]);
+    const R = 6371; // Earth's radius in km
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return (R * c).toFixed(1);
+  };
 
-  // Web fallback - show location info instead of map
-  if (Platform.OS === "web") {
-    return (
-      <View className="flex-1 rounded-2xl overflow-hidden border border-border bg-surface items-center justify-center p-4">
-        <View className="gap-4 items-center">
-          <Text className="text-4xl">🗺️</Text>
-          <Text className="text-lg font-semibold text-foreground text-center">Map Preview</Text>
-          <View className="w-full gap-3">
-            <View className="bg-primary/10 rounded-lg p-3">
-              <Text className="text-xs text-muted mb-1">PICKUP</Text>
-              <Text className="text-sm font-semibold text-foreground">{pickupLocation.address}</Text>
-            </View>
-            <View className="bg-error/10 rounded-lg p-3">
-              <Text className="text-xs text-muted mb-1">DROPOFF</Text>
-              <Text className="text-sm font-semibold text-foreground">{dropoffLocation.address}</Text>
+  const distance = calculateDistance();
+  const estimatedTime = Math.ceil(parseFloat(distance) * 2);
+
+  return (
+    <View className="flex-1 rounded-2xl overflow-hidden border border-border bg-surface p-4 gap-4">
+      {/* Map Icon */}
+      <View className="items-center py-4">
+        <Text className="text-5xl mb-2">🗺️</Text>
+        <Text className="text-sm font-semibold text-foreground">Route Map</Text>
+      </View>
+
+      {/* Route Info */}
+      <View className="gap-3">
+        {/* Pickup */}
+        <View className="flex-row items-start gap-3">
+          <View className="w-8 h-8 rounded-full bg-success items-center justify-center flex-shrink-0">
+            <Text className="text-sm">📍</Text>
+          </View>
+          <View className="flex-1">
+            <Text className="text-xs text-muted mb-1">PICKUP</Text>
+            <Text className="text-sm font-semibold text-foreground">{pickupLocation.address}</Text>
+          </View>
+        </View>
+
+        {/* Distance Line */}
+        <View className="flex-row items-center gap-2 px-4">
+          <View className="w-px h-8 bg-border" />
+          <View className="flex-1 items-center">
+            <View className="bg-primary/10 rounded px-2 py-1">
+              <Text className="text-xs font-semibold text-primary">{distance} km • {estimatedTime} min</Text>
             </View>
           </View>
         </View>
-      </View>
-    );
-  }
 
-  return (
-    <View className="flex-1 rounded-2xl overflow-hidden border border-border">
-      <MapView
-        ref={mapRef}
-        className="flex-1"
-        initialRegion={{
-          latitude: pickupLocation.latitude,
-          longitude: pickupLocation.longitude,
-          latitudeDelta: 0.05,
-          longitudeDelta: 0.05,
-        }}
-        onMapReady={onMapReady}
-      >
-        {Marker && (
+        {/* Dropoff */}
+        <View className="flex-row items-start gap-3">
+          <View className="w-8 h-8 rounded-full bg-error items-center justify-center flex-shrink-0">
+            <Text className="text-sm">📍</Text>
+          </View>
+          <View className="flex-1">
+            <Text className="text-xs text-muted mb-1">DROPOFF</Text>
+            <Text className="text-sm font-semibold text-foreground">{dropoffLocation.address}</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Driver Location (if available) */}
+      {driverLocation && (
         <>
-        {/* Pickup Marker */}
-        <Marker
-          coordinate={{
-            latitude: pickupLocation.latitude,
-            longitude: pickupLocation.longitude,
-          }}
-          title="Pickup Location"
-          description={pickupLocation.address}
-          pinColor="green"
-        >
-          <View className="w-10 h-10 rounded-full bg-success items-center justify-center border-2 border-white">
-            <Text className="text-lg">📍</Text>
-          </View>
-        </Marker>
-
-        {/* Dropoff Marker */}
-        <Marker
-          coordinate={{
-            latitude: dropoffLocation.latitude,
-            longitude: dropoffLocation.longitude,
-          }}
-          title="Dropoff Location"
-          description={dropoffLocation.address}
-          pinColor="red"
-        >
-          <View className="w-10 h-10 rounded-full bg-error items-center justify-center border-2 border-white">
-            <Text className="text-lg">📍</Text>
-          </View>
-        </Marker>
-
-        {/* Driver Marker */}
-        {driverLocation && (
-          <Marker
-            coordinate={{
-              latitude: driverLocation.latitude,
-              longitude: driverLocation.longitude,
-            }}
-            title="Your Driver"
-            description="Current location"
-          >
-            <View className="w-10 h-10 rounded-full bg-primary items-center justify-center border-2 border-white">
-              <Text className="text-lg">🚗</Text>
+          <View className="h-px bg-border" />
+          <View className="flex-row items-start gap-3">
+            <View className="w-8 h-8 rounded-full bg-primary items-center justify-center flex-shrink-0">
+              <Text className="text-sm">🚗</Text>
             </View>
-          </Marker>
-        )}
-
-        {/* Route Line */}
-        {showRoute && Polyline && (
-          <Polyline
-            coordinates={[
-              {
-                latitude: pickupLocation.latitude,
-                longitude: pickupLocation.longitude,
-              },
-              {
-                latitude: dropoffLocation.latitude,
-                longitude: dropoffLocation.longitude,
-              },
-            ]}
-            strokeColor={colors.primary}
-            strokeWidth={3}
-            lineDashPattern={[10, 5]}
-          />
-        )}
+            <View className="flex-1">
+              <Text className="text-xs text-muted mb-1">DRIVER LOCATION</Text>
+              <Text className="text-sm font-semibold text-foreground">{driverLocation.address}</Text>
+            </View>
+          </View>
         </>
-        )}
-      </MapView>
-
-      {MapView && (
-      <>
-      {/* Route Toggle Button */}
-      <Pressable
-        onPress={() => setShowRoute(!showRoute)}
-        className="absolute bottom-4 right-4 bg-white rounded-full p-3 shadow-lg"
-        style={{ backgroundColor: colors.surface }}
-      >
-        <Text className="text-xl">{showRoute ? "🗺️" : "🛣️"}</Text>
-      </Pressable>
-
-      {/* Location Info */}
-      <View className="absolute top-4 left-4 right-4 bg-white rounded-lg p-3 shadow-lg" style={{ backgroundColor: colors.surface }}>
-        <Text className="text-xs text-muted mb-1">PICKUP</Text>
-        <Text className="text-sm font-semibold text-foreground">{pickupLocation.address}</Text>
-        <View className="h-px bg-border my-2" />
-        <Text className="text-xs text-muted mb-1">DROPOFF</Text>
-        <Text className="text-sm font-semibold text-foreground">{dropoffLocation.address}</Text>
-      </View>
-      </>
       )}
+
+      {/* Coordinates Info */}
+      <View className="bg-primary/5 rounded-lg p-3 gap-2">
+        <Text className="text-xs text-muted font-semibold">COORDINATES</Text>
+        <View className="flex-row justify-between">
+          <View>
+            <Text className="text-xs text-muted">Pickup</Text>
+            <Text className="text-xs font-mono text-foreground">{pickupLocation.latitude.toFixed(4)}, {pickupLocation.longitude.toFixed(4)}</Text>
+          </View>
+          <View>
+            <Text className="text-xs text-muted">Dropoff</Text>
+            <Text className="text-xs font-mono text-foreground">{dropoffLocation.latitude.toFixed(4)}, {dropoffLocation.longitude.toFixed(4)}</Text>
+          </View>
+        </View>
+      </View>
     </View>
   );
 }
