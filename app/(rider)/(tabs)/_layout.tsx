@@ -80,6 +80,20 @@ export default function RiderTabLayout() {
           tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>🛡️</Text>,
         }}
       />
+      <Tabs.Screen
+        name="schedule"
+        options={{
+          title: "Schedule",
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>📅</Text>,
+        }}
+      />
+      <Tabs.Screen
+        name="referral"
+        options={{
+          title: "Referral",
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>🎁</Text>,
+        }}
+      />
     </Tabs>
   );
 }

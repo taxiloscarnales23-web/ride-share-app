@@ -178,6 +178,59 @@ export const incidentReports = mysqlTable("incidentReports", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+// Scheduled rides table - future ride bookings
+export const scheduledRides = mysqlTable("scheduledRides", {
+  id: int("id").autoincrement().primaryKey(),
+  riderId: int("riderId").notNull(),
+  pickupLatitude: varchar("pickupLatitude", { length: 50 }).notNull(),
+  pickupLongitude: varchar("pickupLongitude", { length: 50 }).notNull(),
+  pickupAddress: text("pickupAddress"),
+  dropoffLatitude: varchar("dropoffLatitude", { length: 50 }).notNull(),
+  dropoffLongitude: varchar("dropoffLongitude", { length: 50 }).notNull(),
+  dropoffAddress: text("dropoffAddress"),
+  scheduledTime: timestamp("scheduledTime").notNull(),
+  estimatedFare: varchar("estimatedFare", { length: 50 }),
+  status: mysqlEnum("status", ["scheduled", "confirmed", "in_progress", "completed", "cancelled"]).default("scheduled"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+// Referral program table - track referrals between users
+export const referrals = mysqlTable("referrals", {
+  id: int("id").autoincrement().primaryKey(),
+  referrerId: int("referrerId").notNull(),
+  referredUserId: int("referredUserId"),
+  referralCode: varchar("referralCode", { length: 50 }).notNull().unique(),
+  referralType: mysqlEnum("referralType", ["rider", "driver", "both"]).notNull(),
+  rewardAmount: varchar("rewardAmount", { length: 50 }).notNull(),
+  referrerRewardClaimed: boolean("referrerRewardClaimed").default(false),
+  referredRewardClaimed: boolean("referredRewardClaimed").default(false),
+  status: mysqlEnum("status", ["active", "completed", "expired"]).default("active"),
+  expiryDate: timestamp("expiryDate"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+// Driver verification documents table
+export const driverVerification = mysqlTable("driverVerification", {
+  id: int("id").autoincrement().primaryKey(),
+  driverId: int("driverId").notNull().unique(),
+  licenseDocUrl: text("licenseDocUrl"),
+  licenseVerified: boolean("licenseVerified").default(false),
+  registrationDocUrl: text("registrationDocUrl"),
+  registrationVerified: boolean("registrationVerified").default(false),
+  insuranceDocUrl: text("insuranceDocUrl"),
+  insuranceVerified: boolean("insuranceVerified").default(false),
+  backgroundCheckStatus: mysqlEnum("backgroundCheckStatus", ["pending", "approved", "rejected"]).default("pending"),
+  backgroundCheckUrl: text("backgroundCheckUrl"),
+  verificationStatus: mysqlEnum("verificationStatus", ["pending", "approved", "rejected"]).default("pending"),
+  rejectionReason: text("rejectionReason"),
+  submittedAt: timestamp("submittedAt"),
+  verifiedAt: timestamp("verifiedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 // Export types
 export type Rider = typeof riders.$inferSelect;
 export type InsertRider = typeof riders.$inferInsert;
@@ -199,3 +252,9 @@ export type EmergencyContact = typeof emergencyContacts.$inferSelect;
 export type InsertEmergencyContact = typeof emergencyContacts.$inferInsert;
 export type IncidentReport = typeof incidentReports.$inferSelect;
 export type InsertIncidentReport = typeof incidentReports.$inferInsert;
+export type ScheduledRide = typeof scheduledRides.$inferSelect;
+export type InsertScheduledRide = typeof scheduledRides.$inferInsert;
+export type Referral = typeof referrals.$inferSelect;
+export type InsertReferral = typeof referrals.$inferInsert;
+export type DriverVerification = typeof driverVerification.$inferSelect;
+export type InsertDriverVerification = typeof driverVerification.$inferInsert;

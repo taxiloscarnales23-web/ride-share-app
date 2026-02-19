@@ -140,3 +140,12 @@
 - [ ] Add ride scheduling for future bookings
 - [ ] Implement referral program for driver/rider recruitment
 - [ ] Add accessibility features (voice commands, text-to-speech)
+
+
+## Advanced Features - Phase 3
+- [x] Implement ride scheduling for future bookings
+- [x] Build referral program with reward tracking
+- [x] Add driver verification and document upload
+- [ ] Implement surge pricing during peak hours
+- [ ] Add ride pooling/shared rides feature
+- [ ] Create admin dashboard for platform management
