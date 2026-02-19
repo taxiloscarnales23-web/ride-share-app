@@ -109,7 +109,10 @@ export async function createRider(data: InsertRider) {
   if (!db) throw new Error("Database not available");
 
   await db.insert(riders).values(data);
-  return true;
+  // Return the created rider
+  const created = await getRiderByUserId(data.userId);
+  if (!created) throw new Error("Failed to retrieve created rider");
+  return created;
 }
 
 export async function getRiderByUserId(userId: number) {

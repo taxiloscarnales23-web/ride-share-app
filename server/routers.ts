@@ -137,8 +137,13 @@ export const appRouter = router({
         estimatedFare: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        const rider = await db.getRiderByUserId(ctx.user.id);
-        if (!rider) throw new Error("Rider profile not found");
+        let rider = await db.getRiderByUserId(ctx.user.id);
+        if (!rider) {
+          rider = await db.createRider({
+            userId: ctx.user.id,
+            phone: "+1 (555) 000-0000",
+          });
+        }
         return db.createRide({
           riderId: rider.id,
           ...input,

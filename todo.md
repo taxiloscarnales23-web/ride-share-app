@@ -102,3 +102,7 @@
 - [ ] Set up analytics and crash reporting
 - [ ] Plan beta testing program
 - [ ] Prepare launch marketing materials
+
+## Current Issues
+- [x] Fix ride request error - rider profile creation issue
+- [x] Implement automatic rider/driver profile creation on first login
