@@ -106,3 +106,5 @@
 ## Current Issues
 - [x] Fix ride request error - rider profile creation issue
 - [x] Implement automatic rider/driver profile creation on first login
+
+- [x] Fix driver online status toggle error

@@ -153,6 +153,9 @@ export async function updateDriver(driverId: number, data: Partial<InsertDriver>
   if (!db) throw new Error("Database not available");
 
   await db.update(drivers).set(data).where(eq(drivers.id, driverId));
+  // Return the updated driver
+  const updated = await db.select().from(drivers).where(eq(drivers.id, driverId)).limit(1);
+  return updated.length > 0 ? updated[0] : null;
 }
 
 export async function getOnlineDrivers() {
