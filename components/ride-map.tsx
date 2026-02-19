@@ -1,7 +1,17 @@
-import { View, Text, Pressable } from "react-native";
-import MapView, { Marker, Polyline } from "react-native-maps";
+import { View, Text, Pressable, Platform } from "react-native";
 import { useColors } from "@/hooks/use-colors";
 import { useEffect, useRef, useState } from "react";
+
+let MapView: any = null;
+let Marker: any = null;
+let Polyline: any = null;
+
+if (Platform.OS !== "web") {
+  const maps = require("react-native-maps");
+  MapView = maps.default;
+  Marker = maps.Marker;
+  Polyline = maps.Polyline;
+}
 
 export interface RideLocation {
   latitude: number;
@@ -24,11 +34,12 @@ export function RideMap({
   onMapReady,
 }: RideMapProps) {
   const colors = useColors();
-  const mapRef = useRef<MapView>(null);
+  const mapRef = useRef<any>(null);
+  const canRenderMap = Platform.OS !== "web" && MapView !== null;
   const [showRoute, setShowRoute] = useState(true);
 
   useEffect(() => {
-    if (mapRef.current) {
+    if (mapRef.current && Platform.OS !== "web") {
       // Fit map to show all markers
       const coordinates = [pickupLocation, dropoffLocation];
       if (driverLocation) {
@@ -48,6 +59,28 @@ export function RideMap({
     }
   }, [pickupLocation, dropoffLocation, driverLocation]);
 
+  // Web fallback - show location info instead of map
+  if (Platform.OS === "web") {
+    return (
+      <View className="flex-1 rounded-2xl overflow-hidden border border-border bg-surface items-center justify-center p-4">
+        <View className="gap-4 items-center">
+          <Text className="text-4xl">🗺️</Text>
+          <Text className="text-lg font-semibold text-foreground text-center">Map Preview</Text>
+          <View className="w-full gap-3">
+            <View className="bg-primary/10 rounded-lg p-3">
+              <Text className="text-xs text-muted mb-1">PICKUP</Text>
+              <Text className="text-sm font-semibold text-foreground">{pickupLocation.address}</Text>
+            </View>
+            <View className="bg-error/10 rounded-lg p-3">
+              <Text className="text-xs text-muted mb-1">DROPOFF</Text>
+              <Text className="text-sm font-semibold text-foreground">{dropoffLocation.address}</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1 rounded-2xl overflow-hidden border border-border">
       <MapView
@@ -61,6 +94,8 @@ export function RideMap({
         }}
         onMapReady={onMapReady}
       >
+        {Marker && (
+        <>
         {/* Pickup Marker */}
         <Marker
           coordinate={{
@@ -108,7 +143,7 @@ export function RideMap({
         )}
 
         {/* Route Line */}
-        {showRoute && (
+        {showRoute && Polyline && (
           <Polyline
             coordinates={[
               {
@@ -125,8 +160,12 @@ export function RideMap({
             lineDashPattern={[10, 5]}
           />
         )}
+        </>
+        )}
       </MapView>
 
+      {MapView && (
+      <>
       {/* Route Toggle Button */}
       <Pressable
         onPress={() => setShowRoute(!showRoute)}
@@ -144,6 +183,8 @@ export function RideMap({
         <Text className="text-xs text-muted mb-1">DROPOFF</Text>
         <Text className="text-sm font-semibold text-foreground">{dropoffLocation.address}</Text>
       </View>
+      </>
+      )}
     </View>
   );
 }
