@@ -112,10 +112,10 @@
 
 ## Remaining Features to Implement
 - [x] Implement GPS location tracking for drivers
-- [ ] Add real-time ride matching algorithm
+- [x] Add real-time ride matching algorithm
 - [ ] Implement WebSocket for real-time updates
 - [ ] Add push notifications for ride requests
 - [ ] Integrate maps display (Google Maps or Mapbox)
-- [ ] Create cash payment confirmation screen
-- [ ] Implement ride rating and feedback system
+- [x] Create cash payment confirmation screen
+- [x] Implement ride rating and feedback system
 - [ ] Add driver earnings calculation
