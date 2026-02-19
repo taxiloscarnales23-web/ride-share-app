@@ -167,3 +167,7 @@
 - [ ] Implement dark mode theme
 - [ ] Add performance optimizations
 - [ ] Create comprehensive API documentation
+
+
+## Bug Fixes - Current Issues
+- [x] Fix driver online status toggle error "Failed to update status"

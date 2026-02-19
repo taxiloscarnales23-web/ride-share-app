@@ -137,7 +137,9 @@ export async function createDriver(data: InsertDriver) {
   if (!db) throw new Error("Database not available");
 
   await db.insert(drivers).values(data);
-  return true;
+  // Return the created driver
+  const created = await db.select().from(drivers).where(eq(drivers.userId, data.userId)).limit(1);
+  return created.length > 0 ? created[0] : undefined;
 }
 
 export async function getDriverByUserId(userId: number) {
