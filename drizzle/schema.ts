@@ -231,6 +231,46 @@ export const driverVerification = mysqlTable("driverVerification", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+// Surge pricing table - dynamic pricing during peak hours
+export const surgePricing = mysqlTable("surgePricing", {
+  id: int("id").autoincrement().primaryKey(),
+  area: varchar("area", { length: 100 }).notNull(),
+  multiplier: varchar("multiplier", { length: 10 }).notNull(),
+  reason: varchar("reason", { length: 100 }),
+  startTime: timestamp("startTime").notNull(),
+  endTime: timestamp("endTime"),
+  status: mysqlEnum("status", ["active", "inactive"]).default("active"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+// Ride pooling table - shared rides between multiple riders
+export const ridePooling = mysqlTable("ridePooling", {
+  id: int("id").autoincrement().primaryKey(),
+  mainRideId: int("mainRideId").notNull(),
+  pooledRideId: int("pooledRideId").notNull(),
+  mainRiderId: int("mainRiderId").notNull(),
+  pooledRiderId: int("pooledRiderId").notNull(),
+  driverId: int("driverId").notNull(),
+  pickupOrder: int("pickupOrder"),
+  discountPercentage: varchar("discountPercentage", { length: 10 }).default("15"),
+  status: mysqlEnum("status", ["matched", "in_progress", "completed", "cancelled"]).default("matched"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+// Admin audit log table - track admin actions and platform changes
+export const adminAuditLog = mysqlTable("adminAuditLog", {
+  id: int("id").autoincrement().primaryKey(),
+  adminId: int("adminId").notNull(),
+  action: varchar("action", { length: 100 }).notNull(),
+  entityType: varchar("entityType", { length: 50 }),
+  entityId: int("entityId"),
+  details: text("details"),
+  status: varchar("status", { length: 50 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 // Export types
 export type Rider = typeof riders.$inferSelect;
 export type InsertRider = typeof riders.$inferInsert;
@@ -258,3 +298,9 @@ export type Referral = typeof referrals.$inferSelect;
 export type InsertReferral = typeof referrals.$inferInsert;
 export type DriverVerification = typeof driverVerification.$inferSelect;
 export type InsertDriverVerification = typeof driverVerification.$inferInsert;
+export type SurgePricing = typeof surgePricing.$inferSelect;
+export type InsertSurgePricing = typeof surgePricing.$inferInsert;
+export type RidePooling = typeof ridePooling.$inferSelect;
+export type InsertRidePooling = typeof ridePooling.$inferInsert;
+export type AdminAuditLog = typeof adminAuditLog.$inferSelect;
+export type InsertAdminAuditLog = typeof adminAuditLog.$inferInsert;

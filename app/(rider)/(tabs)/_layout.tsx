@@ -94,6 +94,20 @@ export default function RiderTabLayout() {
           tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>🎁</Text>,
         }}
       />
+      <Tabs.Screen
+        name="surge-pricing"
+        options={{
+          title: "Surge",
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>📊</Text>,
+        }}
+      />
+      <Tabs.Screen
+        name="ride-pooling"
+        options={{
+          title: "Pool",
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>🤝</Text>,
+        }}
+      />
     </Tabs>
   );
 }
