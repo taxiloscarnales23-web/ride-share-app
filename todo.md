@@ -346,3 +346,12 @@
 - [x] Update root navigation to skip auth
 - [x] Simplify sign-up flow without OTP
 - [x] Test direct app access
+
+
+## Final Feature Sprint
+- [x] Implement ride scheduling reminders with push notifications
+- [x] Build rider-driver role toggle for testing
+- [x] Create payment method selection UI
+- [x] Build ride history with filters and PDF export
+- [x] Integrate all features with backend APIs
+- [x] Write tests for all four features
