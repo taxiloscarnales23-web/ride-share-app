@@ -480,3 +480,16 @@
 - [x] Implement admin route guards
 - [x] Implement real QR code generation for 2FA
 - [x] Test all integrations
+
+
+## Testing, API Connection & Access Control Phase
+- [x] Write unit tests for webhook screen
+- [x] Write unit tests for audit log screen
+- [x] Write unit tests for 2FA screen
+- [x] Connect webhook screen to real tRPC APIs
+- [x] Connect audit log screen to real tRPC APIs
+- [x] Connect 2FA screen to real tRPC APIs
+- [x] Create admin role check utility
+- [x] Implement route guards for admin screens
+- [x] Add user role to authentication context
+- [x] Test end-to-end workflows

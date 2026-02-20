@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ScrollView, Text, View, TouchableOpacity, TextInput, Alert } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
+import { AdminRoute } from "@/components/admin-route";
 import { trpc } from "@/lib/trpc";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
@@ -118,8 +119,9 @@ export default function WebhooksScreen() {
   };
 
   return (
-    <ScreenContainer className="flex-1 bg-background">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="p-4">
+    <AdminRoute>
+      <ScreenContainer className="flex-1 bg-background">
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="p-4">
         {/* Header */}
         <View className="mb-6">
           <Text className="text-3xl font-bold text-foreground mb-2">Webhooks</Text>
@@ -274,5 +276,6 @@ export default function WebhooksScreen() {
         </View>
       </ScrollView>
     </ScreenContainer>
+    </AdminRoute>
   );
 }
