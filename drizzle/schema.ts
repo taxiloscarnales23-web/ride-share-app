@@ -240,6 +240,54 @@ export const disputeResolutions = mysqlTable("disputeResolutions", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+// Driver badges table - earned achievements
+export const driverBadges = mysqlTable("driverBadges", {
+  id: int("id").autoincrement().primaryKey(),
+  driverId: int("driverId").notNull(),
+  badgeType: mysqlEnum("badgeType", [
+    "five_star_rated",
+    "safety_champion",
+    "reliability_expert",
+    "customer_favorite",
+    "eco_friendly",
+    "veteran_driver",
+    "quick_responder",
+    "perfect_record",
+  ]).notNull(),
+  earnedAt: timestamp("earnedAt").defaultNow().notNull(),
+});
+
+// Push notifications table - notification records
+export const pushNotifications = mysqlTable("pushNotifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  body: text("body").notNull(),
+  type: mysqlEnum("type", [
+    "ride_request",
+    "ride_accepted",
+    "ride_completed",
+    "rating_received",
+    "dispute_update",
+    "badge_earned",
+    "payment_received",
+    "system_alert",
+  ]).notNull(),
+  relatedId: int("relatedId"), // ride id, dispute id, etc
+  read: boolean("read").default(false),
+  sentAt: timestamp("sentAt").defaultNow().notNull(),
+  readAt: timestamp("readAt"),
+});
+
+// Analytics events table - track user actions
+export const analyticsEvents = mysqlTable("analyticsEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId"),
+  eventType: varchar("eventType", { length: 100 }).notNull(),
+  eventData: text("eventData"), // JSON stringified
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
 // Export types
 export type Rider = typeof riders.$inferSelect;
 export type InsertRider = typeof riders.$inferInsert;
@@ -271,3 +319,9 @@ export type DisputeEvidence = typeof disputeEvidence.$inferSelect;
 export type InsertDisputeEvidence = typeof disputeEvidence.$inferInsert;
 export type DisputeResolution = typeof disputeResolutions.$inferSelect;
 export type InsertDisputeResolution = typeof disputeResolutions.$inferInsert;
+export type DriverBadge = typeof driverBadges.$inferSelect;
+export type InsertDriverBadge = typeof driverBadges.$inferInsert;
+export type PushNotification = typeof pushNotifications.$inferSelect;
+export type InsertPushNotification = typeof pushNotifications.$inferInsert;
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type InsertAnalyticsEvent = typeof analyticsEvents.$inferInsert;
