@@ -355,3 +355,14 @@
 - [x] Build ride history with filters and PDF export
 - [x] Integrate all features with backend APIs
 - [x] Write tests for all four features
+
+
+## Real-Time Matching & Earnings Phase
+- [ ] Implement real-time ride matching algorithm
+- [ ] Add proximity-based driver filtering
+- [ ] Implement rating and availability matching
+- [ ] Build driver earnings dashboard UI
+- [ ] Create earnings calculation service
+- [ ] Add weekly/monthly breakdown analytics
+- [ ] Implement PDF export for earnings
+- [ ] Integrate matching and earnings APIs
