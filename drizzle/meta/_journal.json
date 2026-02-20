@@ -50,6 +50,13 @@
       "when": 1771569732963,
       "tag": "0006_fresh_the_order",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1771570103860,
+      "tag": "0007_lucky_grey_gargoyle",
+      "breakpoints": true
     }
   ]
 }

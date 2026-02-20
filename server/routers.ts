@@ -15,6 +15,9 @@ import * as rideReplayService from "./services/ride-replay-service";
 import * as messagingService from "./services/messaging-service";
 import * as pinningService from "./services/pinning-service";
 import * as forwardingService from "./services/forwarding-service";
+import * as reactionsService from "./services/reactions-service";
+import * as searchService from "./services/search-service";
+import * as archivingService from "./services/archiving-service";
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -693,5 +696,117 @@ export const forwardingRouter = router({
     .input(z.object({ messageId: z.number() }))
     .query(async ({ input }) => {
       return forwardingService.getForwardingChain(input.messageId);
+    }),
+});
+
+
+// Reactions routes - emoji reactions to messages
+export const reactionsRouter = router({
+  addReaction: protectedProcedure
+    .input(z.object({ messageId: z.number(), emoji: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return reactionsService.addReaction(input.messageId, ctx.user.id, input.emoji);
+    }),
+  removeReaction: protectedProcedure
+    .input(z.object({ messageId: z.number(), emoji: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return reactionsService.removeReaction(input.messageId, ctx.user.id, input.emoji);
+    }),
+  getMessageReactions: protectedProcedure
+    .input(z.object({ messageId: z.number() }))
+    .query(async ({ input }) => {
+      return reactionsService.getMessageReactions(input.messageId);
+    }),
+  getReactionSummary: protectedProcedure
+    .input(z.object({ messageId: z.number() }))
+    .query(async ({ input }) => {
+      return reactionsService.getReactionSummary(input.messageId);
+    }),
+  getUsersWhoReacted: protectedProcedure
+    .input(z.object({ messageId: z.number(), emoji: z.string() }))
+    .query(async ({ input }) => {
+      return reactionsService.getUsersWhoReacted(input.messageId, input.emoji);
+    }),
+  getAllowedEmojis: publicProcedure.query(async () => {
+    return reactionsService.getAllowedEmojis();
+  }),
+  getTopReactions: protectedProcedure
+    .input(z.object({ conversationId: z.number(), limit: z.number().optional() }))
+    .query(async ({ input }) => {
+      return reactionsService.getTopReactions(input.conversationId, input.limit);
+    }),
+});
+
+// Search routes - full-text search and filtering
+export const searchRouter = router({
+  searchMessages: protectedProcedure
+    .input(z.object({ conversationId: z.number(), query: z.string(), limit: z.number().optional() }))
+    .query(async ({ input }) => {
+      return searchService.searchMessages(input.conversationId, input.query, input.limit);
+    }),
+  searchConversations: protectedProcedure
+    .input(z.object({ query: z.string(), limit: z.number().optional() }))
+    .query(async ({ ctx, input }) => {
+      return searchService.searchConversations(ctx.user.id, input.query, input.limit);
+    }),
+  filterByDateRange: protectedProcedure
+    .input(z.object({ conversationId: z.number(), startDate: z.date(), endDate: z.date() }))
+    .query(async ({ input }) => {
+      return searchService.filterByDateRange(input.conversationId, input.startDate, input.endDate);
+    }),
+  filterByMessageType: protectedProcedure
+    .input(z.object({ conversationId: z.number(), messageType: z.string() }))
+    .query(async ({ input }) => {
+      return searchService.filterByMessageType(input.conversationId, input.messageType);
+    }),
+  getSearchStats: protectedProcedure
+    .input(z.object({ conversationId: z.number() }))
+    .query(async ({ input }) => {
+      return searchService.getSearchStats(input.conversationId);
+    }),
+  rebuildSearchIndex: protectedProcedure
+    .input(z.object({ conversationId: z.number() }))
+    .mutation(async ({ input }) => {
+      return searchService.rebuildSearchIndex(input.conversationId);
+    }),
+});
+
+// Archiving routes - archive and restore conversations
+export const archivingRouter = router({
+  archiveConversation: protectedProcedure
+    .input(z.object({ conversationId: z.number(), reason: z.string().optional() }))
+    .mutation(async ({ ctx, input }) => {
+      return archivingService.archiveConversation(input.conversationId, ctx.user.id, input.reason);
+    }),
+  restoreConversation: protectedProcedure
+    .input(z.object({ conversationId: z.number() }))
+    .mutation(async ({ input }) => {
+      return archivingService.restoreConversation(input.conversationId);
+    }),
+  isConversationArchived: protectedProcedure
+    .input(z.object({ conversationId: z.number() }))
+    .query(async ({ input }) => {
+      return archivingService.isConversationArchived(input.conversationId);
+    }),
+  getArchivedConversations: protectedProcedure.query(async ({ ctx }) => {
+    return archivingService.getArchivedConversations(ctx.user.id);
+  }),
+  getArchiveHistory: protectedProcedure
+    .input(z.object({ conversationId: z.number() }))
+    .query(async ({ input }) => {
+      return archivingService.getArchiveHistory(input.conversationId);
+    }),
+  getArchiveStats: protectedProcedure.query(async ({ ctx }) => {
+    return archivingService.getArchiveStats(ctx.user.id);
+  }),
+  bulkArchiveConversations: protectedProcedure
+    .input(z.object({ conversationIds: z.array(z.number()) }))
+    .mutation(async ({ ctx, input }) => {
+      return archivingService.bulkArchiveConversations(input.conversationIds, ctx.user.id);
+    }),
+  bulkRestoreConversations: protectedProcedure
+    .input(z.object({ conversationIds: z.array(z.number()) }))
+    .mutation(async ({ input }) => {
+      return archivingService.bulkRestoreConversations(input.conversationIds);
     }),
 });

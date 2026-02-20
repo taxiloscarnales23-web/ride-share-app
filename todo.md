@@ -239,3 +239,17 @@
 - [x] Implement pin/unpin and forward/undo operations
 - [x] Add forwarding history and tracking
 - [x] Write comprehensive tests for pinning and forwarding
+
+
+## Message Reactions, Search & Archiving Phase
+- [x] Design message reactions database table
+- [x] Design conversation archiving database table
+- [x] Create backend reactions service with add/remove operations
+- [x] Create backend search service with full-text search
+- [x] Create backend archiving service with archive/restore operations
+- [x] Build message reactions UI with emoji picker
+- [x] Implement reaction count display and user list
+- [x] Build conversation search UI with filters
+- [x] Implement archive/restore UI in conversation list
+- [x] Add API endpoints for reactions, search, and archiving
+- [x] Write comprehensive tests for all three features

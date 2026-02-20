@@ -412,3 +412,47 @@ export type ForwardedMessage = typeof forwardedMessages.$inferSelect;
 export type InsertForwardedMessage = typeof forwardedMessages.$inferInsert;
 export type MessageReaction = typeof messageReactions.$inferSelect;
 export type InsertMessageReaction = typeof messageReactions.$inferInsert;
+
+
+// Message Reactions - emoji reactions to messages (already defined above, but adding here for reference)
+// export const messageReactions = mysqlTable("messageReactions", { ... });
+
+// Conversation Archiving - track archived conversations
+export const archivedConversations = mysqlTable("archivedConversations", {
+  id: int("id").autoincrement().primaryKey(),
+  conversationId: int("conversationId").notNull(),
+  archivedBy: int("archivedBy").notNull(),
+  archivedAt: timestamp("archivedAt").defaultNow().notNull(),
+  restoredAt: timestamp("restoredAt"),
+  isArchived: boolean("isArchived").default(true),
+  archiveReason: varchar("archiveReason", { length: 255 }),
+});
+
+// Conversation Search Index - for full-text search optimization
+export const conversationSearchIndex = mysqlTable("conversationSearchIndex", {
+  id: int("id").autoincrement().primaryKey(),
+  conversationId: int("conversationId").notNull(),
+  messageId: int("messageId"),
+  searchText: text("searchText"),
+  messageType: varchar("messageType", { length: 50 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+// Conversation Metadata - additional conversation info for filtering
+export const conversationMetadata = mysqlTable("conversationMetadata", {
+  id: int("id").autoincrement().primaryKey(),
+  conversationId: int("conversationId").notNull().unique(),
+  messageCount: int("messageCount").default(0),
+  lastMessageAt: timestamp("lastMessageAt"),
+  hasImages: boolean("hasImages").default(false),
+  hasForwarded: boolean("hasForwarded").default(false),
+  hasPinned: boolean("hasPinned").default(false),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ArchivedConversation = typeof archivedConversations.$inferSelect;
+export type InsertArchivedConversation = typeof archivedConversations.$inferInsert;
+export type ConversationSearchIndex = typeof conversationSearchIndex.$inferSelect;
+export type InsertConversationSearchIndex = typeof conversationSearchIndex.$inferInsert;
+export type ConversationMetadata = typeof conversationMetadata.$inferSelect;
+export type InsertConversationMetadata = typeof conversationMetadata.$inferInsert;
