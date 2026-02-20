@@ -18,6 +18,9 @@ import * as forwardingService from "./services/forwarding-service";
 import * as reactionsService from "./services/reactions-service";
 import * as searchService from "./services/search-service";
 import * as archivingService from "./services/archiving-service";
+import { webhookService } from "./services/webhook-service";
+import { auditService } from "./services/audit-service";
+import { twoFAService } from "./services/twofa-service";
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -809,4 +812,174 @@ export const archivingRouter = router({
     .mutation(async ({ input }) => {
       return archivingService.bulkRestoreConversations(input.conversationIds);
     }),
+
+  // Webhook routes
+  webhooks: router({
+    register: protectedProcedure
+      .input(z.object({
+        url: z.string().url(),
+        events: z.array(z.string()),
+      }))
+      .mutation(async ({ input }) => {
+        return webhookService.registerEndpoint(input.url, input.events);
+      }),
+
+    list: protectedProcedure.query(async () => {
+      return webhookService.listEndpoints();
+    }),
+
+    get: protectedProcedure
+      .input(z.object({ endpointId: z.string() }))
+      .query(async ({ input }) => {
+        return webhookService.getEndpoint(input.endpointId);
+      }),
+
+    update: protectedProcedure
+      .input(z.object({
+        endpointId: z.string(),
+        url: z.string().url().optional(),
+        events: z.array(z.string()).optional(),
+        active: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { endpointId, ...updates } = input;
+        return webhookService.updateEndpoint(endpointId, updates);
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ endpointId: z.string() }))
+      .mutation(async ({ input }) => {
+        return webhookService.deleteEndpoint(input.endpointId);
+      }),
+
+    test: protectedProcedure
+      .input(z.object({ endpointId: z.string() }))
+      .mutation(async ({ input }) => {
+        return webhookService.testWebhook(input.endpointId);
+      }),
+
+    getStats: protectedProcedure.query(async () => {
+      return webhookService.getStats();
+    }),
+
+    getDeliveryHistory: protectedProcedure
+      .input(z.object({
+        endpointId: z.string().optional(),
+        limit: z.number().default(100),
+      }))
+      .query(async ({ input }) => {
+        return webhookService.getDeliveryHistory(input.endpointId, input.limit);
+      }),
+  }),
+
+  // Audit routes
+  audit: router({
+    getLogs: protectedProcedure
+      .input(z.object({
+        userId: z.string().optional(),
+        action: z.string().optional(),
+        resource: z.string().optional(),
+        dateFrom: z.date().optional(),
+        dateTo: z.date().optional(),
+        limit: z.number().default(100),
+      }))
+      .query(async ({ input }) => {
+        return auditService.getLogs(input);
+      }),
+
+    getUserActivity: protectedProcedure
+      .input(z.object({
+        userId: z.string(),
+        days: z.number().default(30),
+      }))
+      .query(async ({ input }) => {
+        return auditService.getUserActivity(input.userId, input.days);
+      }),
+
+    detectSuspicious: protectedProcedure.query(async () => {
+      return auditService.detectSuspiciousActivity();
+    }),
+
+    generateReport: protectedProcedure
+      .input(z.object({
+        type: z.string(),
+        dateFrom: z.date(),
+        dateTo: z.date(),
+      }))
+      .mutation(async ({ input }) => {
+        return auditService.generateComplianceReport(input.type, input.dateFrom, input.dateTo);
+      }),
+
+    getReports: protectedProcedure.query(async () => {
+      return auditService.getComplianceReports();
+    }),
+
+    exportLogs: protectedProcedure
+      .input(z.object({
+        format: z.enum(["csv", "json"]),
+        userId: z.string().optional(),
+        dateFrom: z.date().optional(),
+        dateTo: z.date().optional(),
+      }))
+      .query(async ({ input }) => {
+        return auditService.exportLogs(input.format, input);
+      }),
+
+    getStats: protectedProcedure.query(async () => {
+      return auditService.getStats();
+    }),
+  }),
+
+  // Two-Factor Authentication routes
+  twofa: router({
+    enable: protectedProcedure
+      .input(z.object({
+        method: z.enum(["totp", "sms", "both"]),
+        phoneNumber: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return twoFAService.enable(String(ctx.user.id), input.method, input.phoneNumber);
+      }),
+
+    disable: protectedProcedure.mutation(async ({ ctx }) => {
+      return twoFAService.disable(String(ctx.user.id));
+    }),
+
+    getConfig: protectedProcedure.query(async ({ ctx }) => {
+      return twoFAService.getConfig(String(ctx.user.id));
+    }),
+
+    createChallenge: protectedProcedure
+      .input(z.object({ method: z.enum(["totp", "sms"]) }))
+      .mutation(async ({ ctx, input }) => {
+        return twoFAService.createChallenge(String(ctx.user.id), input.method);
+      }),
+
+    verifyCode: protectedProcedure
+      .input(z.object({
+        challengeId: z.string(),
+        code: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        return twoFAService.verifyCode(input.challengeId, input.code);
+      }),
+
+    verifyBackupCode: protectedProcedure
+      .input(z.object({ code: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        return twoFAService.verifyBackupCode(String(ctx.user.id), input.code);
+      }),
+
+    getBackupCodes: protectedProcedure.query(async ({ ctx }) => {
+      return twoFAService.getBackupCodes(String(ctx.user.id));
+    }),
+
+    regenerateBackupCodes: protectedProcedure.mutation(async ({ ctx }) => {
+      return twoFAService.regenerateBackupCodes(String(ctx.user.id));
+    }),
+
+    getStats: protectedProcedure.query(async () => {
+      return twoFAService.getStats();
+    }),
+  }),
 });
