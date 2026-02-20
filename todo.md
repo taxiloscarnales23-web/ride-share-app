@@ -253,3 +253,19 @@
 - [x] Implement archive/restore UI in conversation list
 - [x] Add API endpoints for reactions, search, and archiving
 - [x] Write comprehensive tests for all three features
+
+
+## MVP Critical Features Phase
+- [ ] Implement phone number authentication API
+- [ ] Build OTP verification system
+- [ ] Create phone authentication UI screen
+- [ ] Build rider sign-up flow with profile setup
+- [ ] Build driver sign-up flow with vehicle registration
+- [ ] Implement role selection (rider vs driver)
+- [ ] Create destination search functionality
+- [ ] Build ride confirmation sheet UI
+- [ ] Implement fare calculation logic
+- [ ] Create payment confirmation screen
+- [ ] Build ride completion and rating flow
+- [ ] Add role-based navigation and routing
+- [ ] Write end-to-end tests for MVP flows
