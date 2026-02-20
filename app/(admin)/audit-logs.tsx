@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ScrollView, Text, View, TouchableOpacity, TextInput, FlatList } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, TextInput } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
 
@@ -26,6 +26,7 @@ export default function AuditLogsScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterAction, setFilterAction] = useState<string>("");
 
+  // Mock data - will be replaced with real API calls
   const auditLogs: AuditLog[] = [
     {
       id: "audit-1",

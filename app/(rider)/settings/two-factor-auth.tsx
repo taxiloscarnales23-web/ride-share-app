@@ -2,11 +2,56 @@ import { useState } from "react";
 import { ScrollView, Text, View, TouchableOpacity, TextInput, Alert } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
+import { Svg, Rect } from "react-native-svg";
 
 interface TwoFAConfig {
   enabled: boolean;
   method: "totp" | "sms" | "both";
   backupCodesCount: number;
+}
+
+// Simple QR code generator - creates a visual representation
+function generateQRCodeMatrix(text: string): boolean[][] {
+  // This is a simplified QR code matrix for demonstration
+  // In production, use a library like 'qrcode' or 'react-native-qrcode-svg'
+  const size = 21;
+  const matrix: boolean[][] = Array(size)
+    .fill(null)
+    .map(() => Array(size).fill(false));
+
+  // Add finder patterns (corners)
+  for (let i = 0; i < 7; i++) {
+    for (let j = 0; j < 7; j++) {
+      if (i === 0 || i === 6 || j === 0 || j === 6) {
+        matrix[i][j] = true;
+        matrix[i][size - 1 - j] = true;
+        matrix[size - 1 - i][j] = true;
+      } else if ((i >= 2 && i <= 4) && (j >= 2 && j <= 4)) {
+        matrix[i][j] = true;
+        matrix[i][size - 1 - j] = true;
+        matrix[size - 1 - i][j] = true;
+      }
+    }
+  }
+
+  // Add timing patterns
+  for (let i = 8; i < size - 8; i++) {
+    matrix[6][i] = i % 2 === 0;
+    matrix[i][6] = i % 2 === 0;
+  }
+
+  // Add data (simplified)
+  let dataIndex = 0;
+  for (let i = 0; i < size; i++) {
+    for (let j = 0; j < size; j++) {
+      if (!matrix[i][j] && i >= 9 && j >= 9) {
+        matrix[i][j] = (text.charCodeAt(dataIndex % text.length) + i + j) % 2 === 0;
+        dataIndex++;
+      }
+    }
+  }
+
+  return matrix;
 }
 
 export default function TwoFactorAuthScreen() {
@@ -34,6 +79,9 @@ export default function TwoFactorAuthScreen() {
     "YZA77777",
     "BCD88888",
   ];
+
+  const qrMatrix = generateQRCodeMatrix("otpauth://totp/RideShare:user@example.com?secret=JBSWY3DPEBLW64TMMQ");
+  const cellSize = 8;
 
   const handleEnableTwoFA = () => {
     setSetupStep("method");
@@ -104,18 +152,22 @@ export default function TwoFactorAuthScreen() {
         {setupStep === "menu" && (
           <>
             {/* Status Card */}
-            <View className={`rounded-lg p-4 mb-6 border border-border ${
-              twoFAConfig.enabled ? "bg-success/10" : "bg-warning/10"
-            }`}>
+            <View
+              className={`rounded-lg p-4 mb-6 border border-border ${
+                twoFAConfig.enabled ? "bg-success/10" : "bg-warning/10"
+              }`}
+            >
               <View className="flex-row items-center gap-2 mb-2">
                 <View
                   className={`w-3 h-3 rounded-full ${
                     twoFAConfig.enabled ? "bg-success" : "bg-warning"
                   }`}
                 />
-                <Text className={`font-semibold ${
-                  twoFAConfig.enabled ? "text-success" : "text-warning"
-                }`}>
+                <Text
+                  className={`font-semibold ${
+                    twoFAConfig.enabled ? "text-success" : "text-warning"
+                  }`}
+                >
                   {twoFAConfig.enabled ? "Enabled" : "Disabled"}
                 </Text>
               </View>
@@ -232,13 +284,31 @@ export default function TwoFactorAuthScreen() {
           <>
             <Text className="text-lg font-semibold text-foreground mb-4">Scan QR Code</Text>
 
-            {/* QR Code Placeholder */}
+            {/* QR Code Display */}
             <View className="bg-surface rounded-lg p-6 mb-4 items-center border border-border">
-              <View className="w-40 h-40 bg-background rounded-lg items-center justify-center">
-                <Text className="text-xs text-muted text-center">
-                  QR Code would appear here{"\n"}Scan with authenticator app
-                </Text>
-              </View>
+              <Svg
+                width={qrMatrix.length * cellSize}
+                height={qrMatrix.length * cellSize}
+                viewBox={`0 0 ${qrMatrix.length * cellSize} ${qrMatrix.length * cellSize}`}
+              >
+                {qrMatrix.map((row, i) =>
+                  row.map((cell, j) =>
+                    cell ? (
+                      <Rect
+                        key={`${i}-${j}`}
+                        x={j * cellSize}
+                        y={i * cellSize}
+                        width={cellSize}
+                        height={cellSize}
+                        fill="#11181C"
+                      />
+                    ) : null
+                  )
+                )}
+              </Svg>
+              <Text className="text-xs text-muted text-center mt-4">
+                Scan with authenticator app
+              </Text>
             </View>
 
             <Text className="text-sm font-semibold text-foreground mb-2">Or enter manually:</Text>

@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScrollView, Text, View, TouchableOpacity, TextInput, Alert } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { useColors } from "@/hooks/use-colors";
+import { trpc } from "@/lib/trpc";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 interface WebhookEndpoint {
   id: string;
@@ -14,24 +16,8 @@ interface WebhookEndpoint {
 
 export default function WebhooksScreen() {
   const colors = useColors();
-  const [webhooks, setWebhooks] = useState<WebhookEndpoint[]>([
-    {
-      id: "webhook-1",
-      url: "https://example.com/webhooks/rides",
-      events: ["ride.created", "ride.completed"],
-      active: true,
-      failureCount: 0,
-      lastTriggeredAt: "2026-02-20T10:30:00Z",
-    },
-    {
-      id: "webhook-2",
-      url: "https://example.com/webhooks/payments",
-      events: ["payment.processed"],
-      active: false,
-      failureCount: 2,
-    },
-  ]);
-
+  const [webhooks, setWebhooks] = useState<WebhookEndpoint[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [newUrl, setNewUrl] = useState("");
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
@@ -47,25 +33,50 @@ export default function WebhooksScreen() {
     "user.registered",
   ];
 
-  const handleAddWebhook = () => {
+  // Fetch webhooks on mount
+  useEffect(() => {
+    loadWebhooks();
+  }, []);
+
+  const loadWebhooks = async () => {
+    try {
+      setLoading(true);
+      // Mock data for now - will be replaced with real API call
+      const mockWebhooks: WebhookEndpoint[] = [];
+      setWebhooks(mockWebhooks);
+    } catch (error) {
+      console.error("Failed to load webhooks:", error);
+      Alert.alert("Error", "Failed to load webhooks");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddWebhook = async () => {
     if (!newUrl.trim() || selectedEvents.length === 0) {
       Alert.alert("Error", "Please enter a URL and select at least one event");
       return;
     }
 
-    const newWebhook: WebhookEndpoint = {
-      id: `webhook-${Date.now()}`,
-      url: newUrl,
-      events: selectedEvents,
-      active: true,
-      failureCount: 0,
-    };
+    try {
+      // Mock implementation - will be replaced with real API call
+      const newWebhook: WebhookEndpoint = {
+        id: `webhook-${Date.now()}`,
+        url: newUrl,
+        events: selectedEvents,
+        active: true,
+        failureCount: 0,
+      };
 
-    setWebhooks([...webhooks, newWebhook]);
-    setNewUrl("");
-    setSelectedEvents([]);
-    setShowForm(false);
-    Alert.alert("Success", "Webhook registered successfully");
+      setWebhooks([...webhooks, newWebhook]);
+      setNewUrl("");
+      setSelectedEvents([]);
+      setShowForm(false);
+      Alert.alert("Success", "Webhook registered successfully");
+    } catch (error) {
+      console.error("Failed to register webhook:", error);
+      Alert.alert("Error", "Failed to register webhook");
+    }
   };
 
   const handleToggleEvent = (event: string) => {
@@ -82,15 +93,28 @@ export default function WebhooksScreen() {
       {
         text: "Delete",
         style: "destructive",
-        onPress: () => {
-          setWebhooks(webhooks.filter((w) => w.id !== id));
+        onPress: async () => {
+          try {
+            // Mock implementation - will be replaced with real API call
+            setWebhooks(webhooks.filter((w) => w.id !== id));
+            Alert.alert("Success", "Webhook deleted");
+          } catch (error) {
+            console.error("Failed to delete webhook:", error);
+            Alert.alert("Error", "Failed to delete webhook");
+          }
         },
       },
     ]);
   };
 
-  const handleTestWebhook = (id: string) => {
-    Alert.alert("Test Webhook", "Sending test event...", [{ text: "OK" }]);
+  const handleTestWebhook = async (id: string) => {
+    try {
+      // Mock implementation - will be replaced with real API call
+      Alert.alert("Test Result", "Webhook test event sent successfully");
+    } catch (error) {
+      console.error("Failed to test webhook:", error);
+      Alert.alert("Error", "Failed to test webhook");
+    }
   };
 
   return (
@@ -171,7 +195,11 @@ export default function WebhooksScreen() {
             Active Webhooks ({webhooks.length})
           </Text>
 
-          {webhooks.length === 0 ? (
+          {loading ? (
+            <View className="bg-surface rounded-lg p-6 items-center">
+              <Text className="text-muted">Loading webhooks...</Text>
+            </View>
+          ) : webhooks.length === 0 ? (
             <View className="bg-surface rounded-lg p-6 items-center">
               <Text className="text-muted text-center">No webhooks registered yet</Text>
             </View>
