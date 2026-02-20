@@ -12,6 +12,7 @@ import * as badgesService from "./services/badges-service";
 import * as notificationsService from "./services/notifications-service";
 import * as analyticsService from "./services/analytics-service";
 import * as rideReplayService from "./services/ride-replay-service";
+import * as messagingService from "./services/messaging-service";
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -547,3 +548,69 @@ export const appRouter = router({
 });
 
 export type AppRouter = typeof appRouter;
+
+// Messaging routes - in-app chat functionality
+export const messagingRouter = router({
+  createConversation: protectedProcedure
+    .input(z.object({ rideId: z.number(), riderId: z.number(), driverId: z.number() }))
+    .mutation(async ({ input }) => {
+      return messagingService.createConversation(input);
+    }),
+  getConversation: protectedProcedure
+    .input(z.object({ conversationId: z.number() }))
+    .query(async ({ input }) => {
+      return messagingService.getConversation(input.conversationId);
+    }),
+  getConversationsByUser: protectedProcedure
+    .input(z.object({ userType: z.enum(["rider", "driver"]) }))
+    .query(async ({ ctx, input }) => {
+      return messagingService.getConversationsByUser(ctx.user.id, input.userType);
+    }),
+  sendMessage: protectedProcedure
+    .input(z.object({
+      conversationId: z.number(),
+      senderId: z.number(),
+      senderType: z.enum(["rider", "driver"]),
+      messageText: z.string().optional(),
+      imageUrl: z.string().optional(),
+      messageType: z.enum(["text", "image", "system"]).default("text"),
+    }))
+    .mutation(async ({ input }) => {
+      return messagingService.sendMessage(input);
+    }),
+  getConversationMessages: protectedProcedure
+    .input(z.object({ conversationId: z.number(), limit: z.number().optional(), offset: z.number().optional() }))
+    .query(async ({ input }) => {
+      return messagingService.getConversationMessages(input.conversationId, input.limit, input.offset);
+    }),
+  markMessageAsRead: protectedProcedure
+    .input(z.object({ messageId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      return messagingService.markMessageAsRead(input.messageId, ctx.user.id);
+    }),
+  markConversationAsRead: protectedProcedure
+    .input(z.object({ conversationId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      return messagingService.markConversationAsRead(input.conversationId, ctx.user.id);
+    }),
+  getUnreadMessageCount: protectedProcedure
+    .input(z.object({ conversationId: z.number() }))
+    .query(async ({ input }) => {
+      return messagingService.getUnreadMessageCount(input.conversationId);
+    }),
+  setTypingIndicator: protectedProcedure
+    .input(z.object({ conversationId: z.number(), isTyping: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      return messagingService.setTypingIndicator(input.conversationId, ctx.user.id, input.isTyping);
+    }),
+  getTypingUsers: protectedProcedure
+    .input(z.object({ conversationId: z.number() }))
+    .query(async ({ input }) => {
+      return messagingService.getTypingUsers(input.conversationId);
+    }),
+  getMessageStatistics: protectedProcedure
+    .input(z.object({ conversationId: z.number() }))
+    .query(async ({ input }) => {
+      return messagingService.getMessageStatistics(input.conversationId);
+    }),
+});

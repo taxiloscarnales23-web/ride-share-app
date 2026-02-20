@@ -325,3 +325,50 @@ export type PushNotification = typeof pushNotifications.$inferSelect;
 export type InsertPushNotification = typeof pushNotifications.$inferInsert;
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type InsertAnalyticsEvent = typeof analyticsEvents.$inferInsert;
+
+// Messaging tables - in-app chat and conversations
+export const conversations = mysqlTable("conversations", {
+  id: int("id").autoincrement().primaryKey(),
+  rideId: int("rideId").notNull(),
+  riderId: int("riderId").notNull(),
+  driverId: int("driverId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const messages = mysqlTable("messages", {
+  id: int("id").autoincrement().primaryKey(),
+  conversationId: int("conversationId").notNull(),
+  senderId: int("senderId").notNull(),
+  senderType: mysqlEnum("senderType", ["rider", "driver"]).notNull(),
+  messageText: text("messageText"),
+  imageUrl: text("imageUrl"),
+  messageType: mysqlEnum("messageType", ["text", "image", "system"]).default("text").notNull(),
+  isRead: boolean("isRead").default(false),
+  readAt: timestamp("readAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const messageReadReceipts = mysqlTable("messageReadReceipts", {
+  id: int("id").autoincrement().primaryKey(),
+  messageId: int("messageId").notNull(),
+  userId: int("userId").notNull(),
+  readAt: timestamp("readAt").defaultNow().notNull(),
+});
+
+export const typingIndicators = mysqlTable("typingIndicators", {
+  id: int("id").autoincrement().primaryKey(),
+  conversationId: int("conversationId").notNull(),
+  userId: int("userId").notNull(),
+  isTyping: boolean("isTyping").default(true),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Conversation = typeof conversations.$inferSelect;
+export type InsertConversation = typeof conversations.$inferInsert;
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = typeof messages.$inferInsert;
+export type MessageReadReceipt = typeof messageReadReceipts.$inferSelect;
+export type InsertMessageReadReceipt = typeof messageReadReceipts.$inferInsert;
+export type TypingIndicator = typeof typingIndicators.$inferSelect;
+export type InsertTypingIndicator = typeof typingIndicators.$inferInsert;
