@@ -43,6 +43,13 @@
       "when": 1771569345745,
       "tag": "0005_same_proudstar",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1771569732963,
+      "tag": "0006_fresh_the_order",
+      "breakpoints": true
     }
   ]
 }

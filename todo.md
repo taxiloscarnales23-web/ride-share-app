@@ -226,3 +226,16 @@
 - [x] Add image sharing and file upload
 - [x] Create message history persistence
 - [x] Write comprehensive tests for messaging
+
+
+## Message Forwarding & Pinning Phase
+- [x] Design pinned messages and forwarding database tables
+- [x] Create backend pinning service with CRUD operations
+- [x] Create backend forwarding service with conversation routing
+- [x] Build pinned messages display UI in chat screen
+- [x] Implement message context menu for pin/forward actions
+- [x] Add forwarding dialog with conversation selection
+- [x] Create API endpoints for pinning and forwarding
+- [x] Implement pin/unpin and forward/undo operations
+- [x] Add forwarding history and tracking
+- [x] Write comprehensive tests for pinning and forwarding

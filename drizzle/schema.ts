@@ -372,3 +372,43 @@ export type MessageReadReceipt = typeof messageReadReceipts.$inferSelect;
 export type InsertMessageReadReceipt = typeof messageReadReceipts.$inferInsert;
 export type TypingIndicator = typeof typingIndicators.$inferSelect;
 export type InsertTypingIndicator = typeof typingIndicators.$inferInsert;
+
+
+// Pinned Messages - important messages pinned to top of conversation
+export const pinnedMessages = mysqlTable("pinnedMessages", {
+  id: int("id").autoincrement().primaryKey(),
+  messageId: int("messageId").notNull(),
+  conversationId: int("conversationId").notNull(),
+  pinnedBy: int("pinnedBy").notNull(),
+  pinnedAt: timestamp("pinnedAt").defaultNow().notNull(),
+  unPinnedAt: timestamp("unPinnedAt"),
+  isPinned: boolean("isPinned").default(true),
+});
+
+// Message Forwarding - track forwarded messages between conversations
+export const forwardedMessages = mysqlTable("forwardedMessages", {
+  id: int("id").autoincrement().primaryKey(),
+  originalMessageId: int("originalMessageId").notNull(),
+  sourceConversationId: int("sourceConversationId").notNull(),
+  targetConversationId: int("targetConversationId").notNull(),
+  forwardedBy: int("forwardedBy").notNull(),
+  forwardedAt: timestamp("forwardedAt").defaultNow().notNull(),
+  forwardNote: text("forwardNote"),
+  forwardedMessageId: int("forwardedMessageId"),
+});
+
+// Message Reactions - emoji reactions to messages
+export const messageReactions = mysqlTable("messageReactions", {
+  id: int("id").autoincrement().primaryKey(),
+  messageId: int("messageId").notNull(),
+  userId: int("userId").notNull(),
+  emoji: varchar("emoji", { length: 10 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PinnedMessage = typeof pinnedMessages.$inferSelect;
+export type InsertPinnedMessage = typeof pinnedMessages.$inferInsert;
+export type ForwardedMessage = typeof forwardedMessages.$inferSelect;
+export type InsertForwardedMessage = typeof forwardedMessages.$inferInsert;
+export type MessageReaction = typeof messageReactions.$inferSelect;
+export type InsertMessageReaction = typeof messageReactions.$inferInsert;

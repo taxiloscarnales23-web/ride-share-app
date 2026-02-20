@@ -13,6 +13,8 @@ import * as notificationsService from "./services/notifications-service";
 import * as analyticsService from "./services/analytics-service";
 import * as rideReplayService from "./services/ride-replay-service";
 import * as messagingService from "./services/messaging-service";
+import * as pinningService from "./services/pinning-service";
+import * as forwardingService from "./services/forwarding-service";
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -612,5 +614,84 @@ export const messagingRouter = router({
     .input(z.object({ conversationId: z.number() }))
     .query(async ({ input }) => {
       return messagingService.getMessageStatistics(input.conversationId);
+    }),
+});
+
+// Pinning routes - manage pinned messages
+export const pinningRouter = router({
+  pinMessage: protectedProcedure
+    .input(z.object({ messageId: z.number(), conversationId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      return pinningService.pinMessage(input.messageId, input.conversationId, ctx.user.id);
+    }),
+  unpinMessage: protectedProcedure
+    .input(z.object({ messageId: z.number() }))
+    .mutation(async ({ input }) => {
+      return pinningService.unpinMessage(input.messageId);
+    }),
+  getPinnedMessages: protectedProcedure
+    .input(z.object({ conversationId: z.number() }))
+    .query(async ({ input }) => {
+      return pinningService.getPinnedMessages(input.conversationId);
+    }),
+  getPinnedMessageCount: protectedProcedure
+    .input(z.object({ conversationId: z.number() }))
+    .query(async ({ input }) => {
+      return pinningService.getPinnedMessageCount(input.conversationId);
+    }),
+  isPinned: protectedProcedure
+    .input(z.object({ messageId: z.number() }))
+    .query(async ({ input }) => {
+      return pinningService.isPinned(input.messageId);
+    }),
+  getPinningHistory: protectedProcedure
+    .input(z.object({ conversationId: z.number(), limit: z.number().optional() }))
+    .query(async ({ input }) => {
+      return pinningService.getPinningHistory(input.conversationId, input.limit);
+    }),
+});
+
+// Forwarding routes - forward messages between conversations
+export const forwardingRouter = router({
+  forwardMessage: protectedProcedure
+    .input(z.object({
+      originalMessageId: z.number(),
+      sourceConversationId: z.number(),
+      targetConversationId: z.number(),
+      forwardNote: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      return forwardingService.forwardMessage(
+        input.originalMessageId,
+        input.sourceConversationId,
+        input.targetConversationId,
+        ctx.user.id,
+        input.forwardNote
+      );
+    }),
+  getForwardingHistory: protectedProcedure
+    .input(z.object({ conversationId: z.number(), limit: z.number().optional() }))
+    .query(async ({ input }) => {
+      return forwardingService.getForwardingHistory(input.conversationId, input.limit);
+    }),
+  getForwardedTo: protectedProcedure
+    .input(z.object({ messageId: z.number() }))
+    .query(async ({ input }) => {
+      return forwardingService.getForwardedTo(input.messageId);
+    }),
+  getForwardingStats: protectedProcedure
+    .input(z.object({ conversationId: z.number() }))
+    .query(async ({ input }) => {
+      return forwardingService.getForwardingStats(input.conversationId);
+    }),
+  undoForward: protectedProcedure
+    .input(z.object({ forwardId: z.number() }))
+    .mutation(async ({ input }) => {
+      return forwardingService.undoForward(input.forwardId);
+    }),
+  getForwardingChain: protectedProcedure
+    .input(z.object({ messageId: z.number() }))
+    .query(async ({ input }) => {
+      return forwardingService.getForwardingChain(input.messageId);
     }),
 });
