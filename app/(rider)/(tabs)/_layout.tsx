@@ -80,41 +80,6 @@ export default function RiderTabLayout() {
           tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>🛡️</Text>,
         }}
       />
-      <Tabs.Screen
-        name="schedule"
-        options={{
-          title: "Schedule",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>📅</Text>,
-        }}
-      />
-      <Tabs.Screen
-        name="referral"
-        options={{
-          title: "Referral",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>🎁</Text>,
-        }}
-      />
-      <Tabs.Screen
-        name="surge-pricing"
-        options={{
-          title: "Surge",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>📊</Text>,
-        }}
-      />
-      <Tabs.Screen
-        name="ride-pooling"
-        options={{
-          title: "Pool",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>🤝</Text>,
-        }}
-      />
-      <Tabs.Screen
-        name="search"
-        options={{
-          title: "Search",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>🔍</Text>,
-        }}
-      />
     </Tabs>
   );
 }

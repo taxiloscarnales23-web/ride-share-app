@@ -82,15 +82,8 @@ export const appRouter = router({
         currentLongitude: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        let driver = await db.getDriverByUserId(ctx.user.id);
-        if (!driver) {
-          driver = await db.createDriver({
-            userId: ctx.user.id,
-            phone: input.phone || "N/A",
-            licenseNumber: "PENDING",
-          });
-        }
-        if (!driver) throw new Error("Failed to create driver profile");
+        const driver = await db.getDriverByUserId(ctx.user.id);
+        if (!driver) throw new Error("Driver profile not found");
         return db.updateDriver(driver.id, input);
       }),
 

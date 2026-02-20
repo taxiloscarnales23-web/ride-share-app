@@ -4,7 +4,7 @@ import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Platform } from "react-native";
 import { useColors } from "@/hooks/use-colors";
-import { ActivityIndicator, View, Text } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 
 export default function DriverTabLayout() {
   const colors = useColors();
@@ -47,20 +47,6 @@ export default function DriverTabLayout() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="verification"
-        options={{
-          title: "Verification",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>✓</Text>,
-        }}
-      />
-      <Tabs.Screen
-        name="analytics"
-        options={{
-          title: "Analytics",
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>📊</Text>,
         }}
       />
     </Tabs>

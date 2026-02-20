@@ -22,20 +22,6 @@
       "when": 1771483056789,
       "tag": "0002_marvelous_masque",
       "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1771536263084,
-      "tag": "0003_fresh_madrox",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1771537035508,
-      "tag": "0004_serious_ozymandias",
-      "breakpoints": true
     }
   ]
 }
