@@ -379,3 +379,16 @@
 - [ ] Add real-time messaging integration
 - [ ] Create support dashboard for agents
 - [ ] Write comprehensive tests
+
+
+## Driver Availability Calendar Phase
+- [x] Create availability calendar database schema
+- [x] Build backend availability service
+- [x] Create calendar UI screens
+- [x] Implement weekly schedule setup
+- [x] Add time-off blocking feature
+- [x] Implement automatic status updates
+- [x] Integrate with ride matching
+- [x] Add calendar notifications
+- [x] Create availability analytics
+- [x] Write comprehensive tests
