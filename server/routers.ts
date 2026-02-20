@@ -552,29 +552,25 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return rideReplayService.detectRouteAnomalies(input.rideId);
       }),
-  }),
-});
-
-export type AppRouter = typeof appRouter;
-
-// Messaging routes - in-app chat functionality
-export const messagingRouter = router({
-  createConversation: protectedProcedure
-    .input(z.object({ rideId: z.number(), riderId: z.number(), driverId: z.number() }))
-    .mutation(async ({ input }) => {
-      return messagingService.createConversation(input);
     }),
-  getConversation: protectedProcedure
-    .input(z.object({ conversationId: z.number() }))
-    .query(async ({ input }) => {
-      return messagingService.getConversation(input.conversationId);
-    }),
-  getConversationsByUser: protectedProcedure
-    .input(z.object({ userType: z.enum(["rider", "driver"]) }))
-    .query(async ({ ctx, input }) => {
-      return messagingService.getConversationsByUser(ctx.user.id, input.userType);
-    }),
-  sendMessage: protectedProcedure
+  // Messaging routes - in-app chat functionality
+  messaging: router({
+    createConversation: protectedProcedure
+      .input(z.object({ rideId: z.number(), riderId: z.number(), driverId: z.number() }))
+      .mutation(async ({ input }) => {
+        return messagingService.createConversation(input);
+      }),
+    getConversation: protectedProcedure
+      .input(z.object({ conversationId: z.number() }))
+      .query(async ({ input }) => {
+        return messagingService.getConversation(input.conversationId);
+      }),
+    getConversationsByUser: protectedProcedure
+      .input(z.object({ userType: z.enum(["rider", "driver"]) }))
+      .query(async ({ ctx, input }) => {
+        return messagingService.getConversationsByUser(ctx.user.id, input.userType);
+      }),
+    sendMessage: protectedProcedure
     .input(z.object({
       conversationId: z.number(),
       senderId: z.number(),
@@ -621,11 +617,10 @@ export const messagingRouter = router({
     .query(async ({ input }) => {
       return messagingService.getMessageStatistics(input.conversationId);
     }),
-});
-
-// Pinning routes - manage pinned messages
-export const pinningRouter = router({
-  pinMessage: protectedProcedure
+  }),
+  // Pinning routes - manage pinned messages
+  pinning: router({
+    pinMessage: protectedProcedure
     .input(z.object({ messageId: z.number(), conversationId: z.number() }))
     .mutation(async ({ ctx, input }) => {
       return pinningService.pinMessage(input.messageId, input.conversationId, ctx.user.id);
@@ -655,11 +650,10 @@ export const pinningRouter = router({
     .query(async ({ input }) => {
       return pinningService.getPinningHistory(input.conversationId, input.limit);
     }),
-});
-
-// Forwarding routes - forward messages between conversations
-export const forwardingRouter = router({
-  forwardMessage: protectedProcedure
+  }),
+  // Forwarding routes - forward messages between conversations
+  forwarding: router({
+    forwardMessage: protectedProcedure
     .input(z.object({
       originalMessageId: z.number(),
       sourceConversationId: z.number(),
@@ -700,11 +694,9 @@ export const forwardingRouter = router({
     .query(async ({ input }) => {
       return forwardingService.getForwardingChain(input.messageId);
     }),
-});
-
-
-// Reactions routes - emoji reactions to messages
-export const reactionsRouter = router({
+  }),
+  // Reactions routes - emoji reactions to messages
+  reactions: router({
   addReaction: protectedProcedure
     .input(z.object({ messageId: z.number(), emoji: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -738,16 +730,15 @@ export const reactionsRouter = router({
     .query(async ({ input }) => {
       return reactionsService.getTopReactions(input.conversationId, input.limit);
     }),
-});
-
-// Search routes - full-text search and filtering
-export const searchRouter = router({
-  searchMessages: protectedProcedure
-    .input(z.object({ conversationId: z.number(), query: z.string(), limit: z.number().optional() }))
-    .query(async ({ input }) => {
-      return searchService.searchMessages(input.conversationId, input.query, input.limit);
-    }),
-  searchConversations: protectedProcedure
+  }),
+  // Search routes - full-text search
+  search: router({
+    searchMessages: protectedProcedure
+      .input(z.object({ conversationId: z.number(), query: z.string(), limit: z.number().optional() }))
+      .query(async ({ input }) => {
+        return searchService.searchMessages(input.conversationId, input.query, input.limit);
+      }),
+    searchConversations: protectedProcedure
     .input(z.object({ query: z.string(), limit: z.number().optional() }))
     .query(async ({ ctx, input }) => {
       return searchService.searchConversations(ctx.user.id, input.query, input.limit);
@@ -767,52 +758,51 @@ export const searchRouter = router({
     .query(async ({ input }) => {
       return searchService.getSearchStats(input.conversationId);
     }),
-  rebuildSearchIndex: protectedProcedure
-    .input(z.object({ conversationId: z.number() }))
-    .mutation(async ({ input }) => {
-      return searchService.rebuildSearchIndex(input.conversationId);
-    }),
-});
-
-// Archiving routes - archive and restore conversations
-export const archivingRouter = router({
-  archiveConversation: protectedProcedure
-    .input(z.object({ conversationId: z.number(), reason: z.string().optional() }))
-    .mutation(async ({ ctx, input }) => {
-      return archivingService.archiveConversation(input.conversationId, ctx.user.id, input.reason);
-    }),
-  restoreConversation: protectedProcedure
-    .input(z.object({ conversationId: z.number() }))
-    .mutation(async ({ input }) => {
-      return archivingService.restoreConversation(input.conversationId);
-    }),
-  isConversationArchived: protectedProcedure
+    rebuildSearchIndex: protectedProcedure
+      .input(z.object({ conversationId: z.number() }))
+      .mutation(async ({ input }) => {
+        return searchService.rebuildSearchIndex(input.conversationId);
+      }),
+  }),
+  // Archiving routes - archive conversations
+  archiving: router({
+    archiveConversation: protectedProcedure
+      .input(z.object({ conversationId: z.number(), reason: z.string().optional() }))
+      .mutation(async ({ ctx, input }) => {
+        return archivingService.archiveConversation(input.conversationId, ctx.user.id, input.reason);
+      }),
+    restoreConversation: protectedProcedure
+      .input(z.object({ conversationId: z.number() }))
+      .mutation(async ({ input }) => {
+        return archivingService.restoreConversation(input.conversationId);
+      }),
+    isConversationArchived: protectedProcedure
     .input(z.object({ conversationId: z.number() }))
     .query(async ({ input }) => {
       return archivingService.isConversationArchived(input.conversationId);
     }),
-  getArchivedConversations: protectedProcedure.query(async ({ ctx }) => {
-    return archivingService.getArchivedConversations(ctx.user.id);
-  }),
-  getArchiveHistory: protectedProcedure
+    getArchivedConversations: protectedProcedure.query(async ({ ctx }) => {
+      return archivingService.getArchivedConversations(ctx.user.id);
+    }),
+    getArchiveHistory: protectedProcedure
     .input(z.object({ conversationId: z.number() }))
     .query(async ({ input }) => {
       return archivingService.getArchiveHistory(input.conversationId);
     }),
-  getArchiveStats: protectedProcedure.query(async ({ ctx }) => {
-    return archivingService.getArchiveStats(ctx.user.id);
-  }),
-  bulkArchiveConversations: protectedProcedure
+    getArchiveStats: protectedProcedure.query(async ({ ctx }) => {
+      return archivingService.getArchiveStats(ctx.user.id);
+    }),
+    bulkArchiveConversations: protectedProcedure
     .input(z.object({ conversationIds: z.array(z.number()) }))
     .mutation(async ({ ctx, input }) => {
       return archivingService.bulkArchiveConversations(input.conversationIds, ctx.user.id);
     }),
-  bulkRestoreConversations: protectedProcedure
-    .input(z.object({ conversationIds: z.array(z.number()) }))
-    .mutation(async ({ input }) => {
-      return archivingService.bulkRestoreConversations(input.conversationIds);
-    }),
-
+    bulkRestoreConversations: protectedProcedure
+      .input(z.object({ conversationIds: z.array(z.number()) }))
+      .mutation(async ({ input }) => {
+        return archivingService.bulkRestoreConversations(input.conversationIds);
+      }),
+  }),
   // Webhook routes
   webhooks: router({
     register: protectedProcedure
@@ -983,3 +973,5 @@ export const archivingRouter = router({
     }),
   }),
 });
+
+export type AppRouter = typeof appRouter;
