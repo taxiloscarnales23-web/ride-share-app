@@ -392,3 +392,15 @@
 - [x] Add calendar notifications
 - [x] Create availability analytics
 - [x] Write comprehensive tests
+
+
+## Cancellation Policies & Leaderboard Phase
+- [x] Implement ride cancellation policies with grace period
+- [x] Add automatic refund processing
+- [x] Create dispute resolution for cancellations
+- [x] Build driver performance leaderboard UI
+- [x] Implement weekly/monthly ranking calculations
+- [x] Add achievement badges and incentives
+- [x] Create leaderboard analytics and statistics
+- [x] Integrate cancellation and leaderboard APIs
+- [x] Write comprehensive tests
