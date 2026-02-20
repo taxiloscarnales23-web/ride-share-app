@@ -5,6 +5,9 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import * as matching from "./matching";
+import * as ratingService from "./services/rating-service";
+import * as trackingService from "./services/tracking-service";
+import * as disputeService from "./services/dispute-service";
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -249,6 +252,217 @@ export const appRouter = router({
           status: "completed" as const,
           paidAt: new Date(),
         });
+      }),
+  }),
+
+  // Rating routes
+  ratings: router({
+    createRating: protectedProcedure
+      .input(z.object({
+        rideId: z.number(),
+        driverId: z.number(),
+        overallRating: z.number().min(1).max(5),
+        cleanliness: z.number().min(1).max(5).optional(),
+        safety: z.number().min(1).max(5).optional(),
+        communication: z.number().min(1).max(5).optional(),
+        review: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const rider = await db.getRiderByUserId(ctx.user.id);
+        if (!rider) throw new Error("Rider profile not found");
+        return ratingService.createDriverRating({
+          rideId: input.rideId,
+          riderId: rider.id,
+          driverId: input.driverId,
+          overallRating: input.overallRating,
+          cleanliness: input.cleanliness,
+          safety: input.safety,
+          communication: input.communication,
+          review: input.review,
+        });
+      }),
+
+    getDriverRatings: publicProcedure
+      .input(z.object({ driverId: z.number(), limit: z.number().default(10) }))
+      .query(async ({ input }) => {
+        return ratingService.getDriverRatings(input.driverId, input.limit);
+      }),
+
+    getDriverStats: publicProcedure
+      .input(z.object({ driverId: z.number() }))
+      .query(async ({ input }) => {
+        return ratingService.getDriverRatingStats(input.driverId);
+      }),
+
+    hasRatedRide: protectedProcedure
+      .input(z.object({ rideId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const rider = await db.getRiderByUserId(ctx.user.id);
+        if (!rider) return false;
+        return ratingService.hasRatedRide(input.rideId, rider.id);
+      }),
+
+    getTopRatedDrivers: publicProcedure
+      .input(z.object({ limit: z.number().default(10) }))
+      .query(async ({ input }) => {
+        return ratingService.getTopRatedDrivers(input.limit);
+      }),
+  }),
+
+  // Tracking routes
+  tracking: router({
+    recordLocation: protectedProcedure
+      .input(z.object({
+        rideId: z.number(),
+        latitude: z.string(),
+        longitude: z.string(),
+        accuracy: z.string().optional(),
+        speed: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const driver = await db.getDriverByUserId(ctx.user.id);
+        if (!driver) throw new Error("Driver profile not found");
+        return trackingService.recordLocationUpdate({
+          rideId: input.rideId,
+          driverId: driver.id,
+          latitude: input.latitude,
+          longitude: input.longitude,
+          accuracy: input.accuracy,
+          speed: input.speed,
+        });
+      }),
+
+    getCurrentLocation: publicProcedure
+      .input(z.object({ rideId: z.number() }))
+      .query(async ({ input }) => {
+        return trackingService.getCurrentRideLocation(input.rideId);
+      }),
+
+    getLocationHistory: publicProcedure
+      .input(z.object({ rideId: z.number() }))
+      .query(async ({ input }) => {
+        return trackingService.getRideLocationHistory(input.rideId);
+      }),
+
+    getDriverLocation: publicProcedure
+      .input(z.object({ driverId: z.number() }))
+      .query(async ({ input }) => {
+        return trackingService.getDriverCurrentLocation(input.driverId);
+      }),
+
+    calculateETA: publicProcedure
+      .input(z.object({
+        currentLat: z.number(),
+        currentLon: z.number(),
+        destLat: z.number(),
+        destLon: z.number(),
+        averageSpeed: z.number().default(40),
+      }))
+      .query(async ({ input }) => {
+        return trackingService.calculateETA(
+          input.currentLat,
+          input.currentLon,
+          input.destLat,
+          input.destLon,
+          input.averageSpeed
+        );
+      }),
+  }),
+
+  // Dispute routes
+  disputes: router({
+    createDispute: protectedProcedure
+      .input(z.object({
+        rideId: z.number(),
+        driverId: z.number(),
+        issueType: z.enum(["wrong_fare", "unsafe_behavior", "lost_item", "vehicle_issue", "other"]),
+        title: z.string(),
+        description: z.string(),
+        severity: z.enum(["low", "medium", "high"]).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const rider = await db.getRiderByUserId(ctx.user.id);
+        if (!rider) throw new Error("Rider profile not found");
+        return disputeService.createDispute({
+          rideId: input.rideId,
+          riderId: rider.id,
+          driverId: input.driverId,
+          issueType: input.issueType,
+          title: input.title,
+          description: input.description,
+          severity: input.severity,
+        });
+      }),
+
+    addEvidence: protectedProcedure
+      .input(z.object({
+        disputeId: z.number(),
+        evidenceType: z.enum(["photo", "video", "audio", "document"]),
+        fileUrl: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        return disputeService.addDisputeEvidence(input);
+      }),
+
+    getDisputeDetail: publicProcedure
+      .input(z.object({ disputeId: z.number() }))
+      .query(async ({ input }) => {
+        return disputeService.getDisputeDetail(input.disputeId);
+      }),
+
+    getRiderDisputes: protectedProcedure
+      .query(async ({ ctx }) => {
+        const rider = await db.getRiderByUserId(ctx.user.id);
+        if (!rider) return [];
+        return disputeService.getRiderDisputes(rider.id);
+      }),
+
+    getDriverDisputes: protectedProcedure
+      .query(async ({ ctx }) => {
+        const driver = await db.getDriverByUserId(ctx.user.id);
+        if (!driver) return [];
+        return disputeService.getDriverDisputes(driver.id);
+      }),
+
+    getOpenDisputes: protectedProcedure
+      .query(async ({ ctx }) => {
+        // Only admins can view all open disputes
+        if (ctx.user.role !== "admin") throw new Error("Unauthorized");
+        return disputeService.getOpenDisputes();
+      }),
+
+    resolveDispute: protectedProcedure
+      .input(z.object({
+        disputeId: z.number(),
+        resolutionType: z.enum(["refund", "credit", "compensation", "no_action"]),
+        amount: z.string().optional(),
+        reason: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Only admins can resolve disputes
+        if (ctx.user.role !== "admin") throw new Error("Unauthorized");
+        return disputeService.resolveDispute({
+          ...input,
+          resolvedBy: ctx.user.id,
+        });
+      }),
+
+    updateDisputeStatus: protectedProcedure
+      .input(z.object({
+        disputeId: z.number(),
+        status: z.enum(["open", "in_review", "resolved", "closed"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Only admins can update dispute status
+        if (ctx.user.role !== "admin") throw new Error("Unauthorized");
+        return disputeService.updateDisputeStatus(input.disputeId, input.status);
+      }),
+
+    getDisputeStats: protectedProcedure
+      .query(async ({ ctx }) => {
+        // Only admins can view dispute stats
+        if (ctx.user.role !== "admin") throw new Error("Unauthorized");
+        return disputeService.getDisputeStats();
       }),
   }),
 });

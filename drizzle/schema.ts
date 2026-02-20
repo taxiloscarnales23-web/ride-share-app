@@ -178,6 +178,68 @@ export const incidentReports = mysqlTable("incidentReports", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+// Driver ratings table - detailed ratings from riders
+export const driverRatings = mysqlTable("driverRatings", {
+  id: int("id").autoincrement().primaryKey(),
+  rideId: int("rideId").notNull(),
+  riderId: int("riderId").notNull(),
+  driverId: int("driverId").notNull(),
+  overallRating: int("overallRating").notNull(), // 1-5
+  cleanliness: int("cleanliness"), // 1-5
+  safety: int("safety"), // 1-5
+  communication: int("communication"), // 1-5
+  review: text("review"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+// Ride locations table - track driver location during active rides
+export const rideLocations = mysqlTable("rideLocations", {
+  id: int("id").autoincrement().primaryKey(),
+  rideId: int("rideId").notNull(),
+  driverId: int("driverId").notNull(),
+  latitude: varchar("latitude", { length: 50 }).notNull(),
+  longitude: varchar("longitude", { length: 50 }).notNull(),
+  accuracy: varchar("accuracy", { length: 50 }),
+  speed: varchar("speed", { length: 50 }),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+// Disputes table - main dispute/ticket records
+export const disputes = mysqlTable("disputes", {
+  id: int("id").autoincrement().primaryKey(),
+  rideId: int("rideId").notNull(),
+  riderId: int("riderId").notNull(),
+  driverId: int("driverId").notNull(),
+  issueType: mysqlEnum("issueType", ["wrong_fare", "unsafe_behavior", "lost_item", "vehicle_issue", "other"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  status: mysqlEnum("status", ["open", "in_review", "resolved", "closed"]).default("open"),
+  severity: mysqlEnum("severity", ["low", "medium", "high"]).default("medium"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  resolvedAt: timestamp("resolvedAt"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+// Dispute evidence table - attachments for disputes
+export const disputeEvidence = mysqlTable("disputeEvidence", {
+  id: int("id").autoincrement().primaryKey(),
+  disputeId: int("disputeId").notNull(),
+  evidenceType: mysqlEnum("evidenceType", ["photo", "video", "audio", "document"]).notNull(),
+  fileUrl: text("fileUrl").notNull(),
+  uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
+});
+
+// Dispute resolutions table - resolution outcomes
+export const disputeResolutions = mysqlTable("disputeResolutions", {
+  id: int("id").autoincrement().primaryKey(),
+  disputeId: int("disputeId").notNull().unique(),
+  resolutionType: mysqlEnum("resolutionType", ["refund", "credit", "compensation", "no_action"]).notNull(),
+  amount: varchar("amount", { length: 50 }),
+  reason: text("reason"),
+  resolvedBy: int("resolvedBy"), // admin user id
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 // Export types
 export type Rider = typeof riders.$inferSelect;
 export type InsertRider = typeof riders.$inferInsert;
@@ -199,3 +261,13 @@ export type EmergencyContact = typeof emergencyContacts.$inferSelect;
 export type InsertEmergencyContact = typeof emergencyContacts.$inferInsert;
 export type IncidentReport = typeof incidentReports.$inferSelect;
 export type InsertIncidentReport = typeof incidentReports.$inferInsert;
+export type DriverRating = typeof driverRatings.$inferSelect;
+export type InsertDriverRating = typeof driverRatings.$inferInsert;
+export type RideLocation = typeof rideLocations.$inferSelect;
+export type InsertRideLocation = typeof rideLocations.$inferInsert;
+export type Dispute = typeof disputes.$inferSelect;
+export type InsertDispute = typeof disputes.$inferInsert;
+export type DisputeEvidence = typeof disputeEvidence.$inferSelect;
+export type InsertDisputeEvidence = typeof disputeEvidence.$inferInsert;
+export type DisputeResolution = typeof disputeResolutions.$inferSelect;
+export type InsertDisputeResolution = typeof disputeResolutions.$inferInsert;
