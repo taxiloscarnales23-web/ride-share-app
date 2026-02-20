@@ -8,6 +8,10 @@ import * as matching from "./matching";
 import * as ratingService from "./services/rating-service";
 import * as trackingService from "./services/tracking-service";
 import * as disputeService from "./services/dispute-service";
+import * as badgesService from "./services/badges-service";
+import * as notificationsService from "./services/notifications-service";
+import * as analyticsService from "./services/analytics-service";
+import * as rideReplayService from "./services/ride-replay-service";
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -463,6 +467,81 @@ export const appRouter = router({
         // Only admins can view dispute stats
         if (ctx.user.role !== "admin") throw new Error("Unauthorized");
         return disputeService.getDisputeStats();
+      }),
+  }),
+
+  badges: router({
+    getAllBadges: publicProcedure.query(async () => {
+      return badgesService.getAllBadges();
+    }),
+    getDriverBadges: protectedProcedure.query(async ({ ctx }) => {
+      const driver = await db.getDriverByUserId(ctx.user.id);
+      if (!driver) throw new Error("Driver profile not found");
+      return badgesService.getDriverBadges(driver.id);
+    }),
+    getDriverBadgeProgress: protectedProcedure.query(async ({ ctx }) => {
+      const driver = await db.getDriverByUserId(ctx.user.id);
+      if (!driver) throw new Error("Driver profile not found");
+      return badgesService.getDriverBadgeProgress(driver.id);
+    }),
+  }),
+
+  notifications: router({
+    getUnreadNotifications: protectedProcedure.query(async ({ ctx }) => {
+      return notificationsService.getUnreadNotifications(ctx.user.id);
+    }),
+    getUserNotifications: protectedProcedure
+      .input(z.object({ limit: z.number().optional(), offset: z.number().optional() }))
+      .query(async ({ ctx, input }) => {
+        return notificationsService.getUserNotifications(ctx.user.id, input.limit, input.offset);
+      }),
+    getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
+      return notificationsService.getUnreadCount(ctx.user.id);
+    }),
+  }),
+
+  analytics: router({
+    getDashboardMetrics: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Unauthorized");
+      return analyticsService.getDashboardMetrics();
+    }),
+    getRideAnalytics: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Unauthorized");
+      return analyticsService.getRideAnalytics();
+    }),
+    getDriverAnalytics: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Unauthorized");
+      return analyticsService.getDriverAnalytics();
+    }),
+    getRevenueAnalytics: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Unauthorized");
+      return analyticsService.getRevenueAnalytics();
+    }),
+    getDisputeAnalytics: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Unauthorized");
+      return analyticsService.getDisputeAnalytics();
+    }),
+    getComprehensiveReport: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") throw new Error("Unauthorized");
+      return analyticsService.getComprehensiveReport();
+    }),
+  }),
+
+  rideReplay: router({
+    getRideReplayData: protectedProcedure
+      .input(z.object({ rideId: z.number() }))
+      .query(async ({ input }) => {
+        return rideReplayService.getRideReplayData(input.rideId);
+      }),
+    getRouteStatistics: protectedProcedure
+      .input(z.object({ rideId: z.number() }))
+      .query(async ({ input }) => {
+        return rideReplayService.getRouteStatistics(input.rideId);
+      }),
+    detectRouteAnomalies: protectedProcedure
+      .input(z.object({ rideId: z.number() }))
+      .query(async ({ input }) => {
+        return rideReplayService.detectRouteAnomalies(input.rideId);
       }),
   }),
 });
