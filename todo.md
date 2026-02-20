@@ -269,3 +269,16 @@
 - [ ] Build ride completion and rating flow
 - [ ] Add role-based navigation and routing
 - [ ] Write end-to-end tests for MVP flows
+
+
+## Navigation & Tracking Phase
+- [x] Implement role-based navigation routing
+- [x] Create auth stack with phone auth screens
+- [x] Build rider home stack with booking flow
+- [x] Build driver home stack with ride acceptance
+- [x] Add driver acceptance screen
+- [x] Implement live GPS tracking display
+- [x] Create ride tracking map screen
+- [x] Build ride status polling service
+- [x] Implement background sync for ride updates
+- [x] Add real-time location updates

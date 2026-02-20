@@ -86,6 +86,23 @@ export default function RootLayout() {
           {/* If a screen needs the native header, explicitly enable it and set a human title via Stack.Screen options. */}
           {/* in order for ios apps tab switching to work properly, use presentation: "fullScreenModal" for login page, whenever you decide to use presentation: "modal*/}
           <Stack screenOptions={{ headerShown: false }}>
+            {/* Auth Stack */}
+            <Stack.Screen name="auth/phone-auth" options={{ title: "Phone Auth" }} />
+            <Stack.Screen name="auth/rider-signup" options={{ title: "Rider Signup" }} />
+            <Stack.Screen name="auth/driver-signup" options={{ title: "Driver Signup" }} />
+
+            {/* Rider Stack */}
+            <Stack.Screen name="rider/home" options={{ title: "Home" }} />
+            <Stack.Screen name="rider/book-ride" options={{ title: "Book Ride" }} />
+            <Stack.Screen name="rider/payment-confirmation" options={{ title: "Payment" }} />
+            <Stack.Screen name="rider/ride-tracking" options={{ title: "Tracking" }} />
+            <Stack.Screen name="rider/ride-completion" options={{ title: "Completion" }} />
+
+            {/* Driver Stack */}
+            <Stack.Screen name="driver/home" options={{ title: "Home" }} />
+            <Stack.Screen name="driver/ride-acceptance" options={{ title: "Ride Request" }} />
+            <Stack.Screen name="driver/ride-tracking" options={{ title: "Tracking" }} />
+
             {/* Login Screen */}
             <Stack.Screen name="login" />
 
