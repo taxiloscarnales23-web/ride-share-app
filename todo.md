@@ -338,3 +338,11 @@
 - [x] Test translations across all screens
 - [x] Add language-specific formatting (dates, currency)
 - [x] Implement pluralization rules
+
+
+## Remove OTP Authentication (Temporary)
+- [x] Remove phone-auth-service.ts
+- [x] Remove phone-auth.tsx screen
+- [x] Update root navigation to skip auth
+- [x] Simplify sign-up flow without OTP
+- [x] Test direct app access
