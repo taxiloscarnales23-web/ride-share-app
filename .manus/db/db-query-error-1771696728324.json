@@ -1,0 +1,8 @@
+{
+  "query": "\n-- Create a test driver user\nINSERT INTO users (id, email, password, name, phone, created_at, updated_at)\nVALUES (\n  'driver-test-001',\n  'driver@test.com',\n  'test123',\n  'Test Driver',\n  '+1234567890',\n  NOW(),\n  NOW()\n);\n\n-- Create driver profile\nINSERT INTO drivers (id, user_id, license_number, vehicle_type, vehicle_plate, rating, total_rides, is_online, created_at, updated_at)\nVALUES (\n  'driver-001',\n  'driver-test-001',\n  'DL123456',\n  'sedan',\n  'ABC123',\n  4.8,\n  45,\n  true,\n  NOW(),\n  NOW()\n);\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3tXAQfK7YAPLqQv.b904704d0a16 --database DjjYuWDLn34ekjVmUTokMQ --execute \n-- Create a test driver user\nINSERT INTO users (id, email, password, name, phone, created_at, updated_at)\nVALUES (\n  'driver-test-001',\n  'driver@test.com',\n  'test123',\n  'Test Driver',\n  '+1234567890',\n  NOW(),\n  NOW()\n);\n\n-- Create driver profile\nINSERT INTO drivers (id, user_id, license_number, vehicle_type, vehicle_plate, rating, total_rides, is_online, created_at, updated_at)\nVALUES (\n  'driver-001',\n  'driver-test-001',\n  'DL123456',\n  'sedan',\n  'ABC123',\n  4.8,\n  45,\n  true,\n  NOW(),\n  NOW()\n);\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 3: Unknown column 'password' in 'field list'"
+  ]
+}

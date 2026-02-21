@@ -1,0 +1,25 @@
+{
+  "query": "\n-- First, get the user ID of the logged-in user (we'll use a recent user)\n-- Create a driver profile for user ID 1 (assuming this is your user)\nINSERT INTO drivers (userId, phone, licenseNumber, rating, totalRides, isOnline, createdAt, updatedAt)\nVALUES (\n  1,\n  '+1-555-0100',\n  'CA-DL-123456',\n  '4.8',\n  42,\n  false,\n  NOW(),\n  NOW()\n);\n\n-- Verify the driver was created\nSELECT * FROM drivers WHERE userId = 1;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3tXAQfK7YAPLqQv.b904704d0a16 --database DjjYuWDLn34ekjVmUTokMQ --execute \n-- First, get the user ID of the logged-in user (we'll use a recent user)\n-- Create a driver profile for user ID 1 (assuming this is your user)\nINSERT INTO drivers (userId, phone, licenseNumber, rating, totalRides, isOnline, createdAt, updatedAt)\nVALUES (\n  1,\n  '+1-555-0100',\n  'CA-DL-123456',\n  '4.8',\n  42,\n  false,\n  NOW(),\n  NOW()\n);\n\n-- Verify the driver was created\nSELECT * FROM drivers WHERE userId = 1;\n",
+  "rows": [
+    {
+      "id": "1",
+      "userId": "1",
+      "phone": "+1-555-0100",
+      "licenseNumber": "CA-DL-123456",
+      "licenseExpiry": "NULL",
+      "rating": "4.8",
+      "totalRides": "42",
+      "isOnline": "0",
+      "currentLatitude": "NULL",
+      "currentLongitude": "NULL",
+      "bankAccount": "NULL",
+      "createdAt": "2026-02-21 18:17:58",
+      "updatedAt": "2026-02-21 18:17:58"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tuserId\tphone\tlicenseNumber\tlicenseExpiry\trating\ttotalRides\tisOnline\tcurrentLatitude\tcurrentLongitude\tbankAccount\tcreatedAt\tupdatedAt\n1\t1\t+1-555-0100\tCA-DL-123456\tNULL\t4.8\t42\t0\tNULL\tNULL\tNULL\t2026-02-21 18:17:58\t2026-02-21 18:17:58\n",
+  "stderr": "",
+  "execution_time_ms": 2517
+}
